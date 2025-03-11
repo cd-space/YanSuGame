@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <!-- 底部“预览”按钮 -->
+      <!-- 底部按钮 -->
        <div style="display: flex; position: fixed;bottom: 0; width: 100%;">
          <div class="preview-bar" @click="handlePreview">
            <div class="preview-btn"> 预览</div>
@@ -128,6 +128,7 @@ function handlePreview() {
 </script>
   
 <style scoped>
+
 
 .middle {
   width: 100%;
@@ -315,7 +316,6 @@ function handlePreview() {
   justify-content: center;
   align-items: center;
   bottom: 0;
-  /* position: fixed; */
   width: 50%;
   height: 53px;
   background-color: #f0f0f0;

@@ -93,6 +93,7 @@
   
   .option-button {
     width: 38vw;
+    height: 20vw;
     padding: 15px;
     margin: 10px 0;
     background-color: #f5f5f5;
