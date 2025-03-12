@@ -168,9 +168,9 @@ button {
 /* 单元格 */
 .table-cell {
   flex: 1;
-  padding: 8px;
+  padding: 9px;
   text-align: center;
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
 }
 
 /* 表头单元格 */
