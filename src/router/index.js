@@ -3,6 +3,7 @@ import Home from '../views/Home.vue';
 import CreatLineGame from '../views/CreatLineGame.vue';
 import CreatDragGame from '../views/CreatDragGame.vue'
 import Temp from '../views/Temp.vue';
+import LineGame from '../views/LineGame.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/Temp',
     name: 'Temp',
     component: Temp
+  },
+  {
+    path: '/LineGame',
+    name: 'LineGame',
+    component: LineGame
   },
 
 ];

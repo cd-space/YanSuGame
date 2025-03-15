@@ -1,6 +1,7 @@
 <template>
     <div class="editor-wrapper">
       <div class="head">
+        <button class="back-button" @click="goBack">&lt;</button>
         <div class="editor-title">编辑连线配对</div>
       </div>
 
@@ -125,10 +126,23 @@ function handlePreview() {
   router.push({
     name: 'ManageLinecopy'})
 }
+const goBack = () => {
+  router.go(-1);
+  };
+
 </script>
   
 <style scoped>
-
+  .back-button {
+    left: 3vw;
+    top: 10px;
+    position:absolute;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: black;
+    cursor: pointer;
+  }
 
 .middle {
   width: 100%;

@@ -1,39 +1,59 @@
 <template>
   <div class="table-container">
     <div class="head">
+      <button class="back-button" @click="goBack">&lt;</button>
       <div class="editor-title">编辑拖拽组装</div>
     </div>
 
     <div class="middle">
-      <button @click="addColumn">添加列</button>
-      <button @click="addRow">添加行</button>
       <div class="box">
-
-        <!-- 表格区域 -->
-        <div class="table-wrapper">
-          <!-- 表头 -->
-          <div class="table-header">
-            <div v-for="(headerRow, rowIndex) in tableStore.headers" :key="rowIndex" class="table-row">
-              <div v-for="(col, colIndex) in tableStore.columns" :key="colIndex" class="table-cell header-cell"
-                :style="getCellStyle(rowIndex, colIndex)">
-                <input v-model="tableStore.headers[rowIndex][colIndex]"
-                  @input="updateHeader(rowIndex, colIndex, $event.target.value)">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="n in columns" :key="`header-${n}`" class="th-head">
+              <div style="display: flex;">
+                <input type="text" v-model="headers[0][n]" :placeholder="n === 1 ? '首列标题' : `表头`" style="font-size: 3.4vw;"/>
+                <button v-if="n > 0" @click="deleteColumn(n-1)" style="color: red;font-size: 30px;">×</button>
               </div>
-            </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody style="width: 100%;">
+          <tr v-for="(row, rowIndex) in rows" :key="`row-${rowIndex}`">
+            <td v-for="(cell, cellIndex) in row" :key="`cell-${rowIndex}-${cellIndex}`" class="td-data">
+              <input v-if="cellIndex === 0" type="text" v-model="row[cellIndex]" class="first-column"
+                placeholder="| 输入标题内容" />
+              <input v-else type="text" v-model="row[cellIndex]" class="other-columns" placeholder="| 输入答案内容" />
+            </td>
+            <td v-if="columns > 0" class="td-dele" style="width: 30px;">
+              <button @click="deleteRow(rowIndex)"><img src="@/assets/images/error.png" alt=""
+                  style="width: 20px; height: 20px;"></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="controls">
+        <div style="display: flex; justify-content: space-around;">
+          <button @click="addColumn" class="add-btn">+ 添加列</button>
+          <button @click="addRow" class="add-btn">+ 添加行</button>
+        </div>
+        <div class="random-checkbox">
+            <label>
+              <input type="checkbox" v-model="randomizeAnswers" />
+              允许设置在预览中随机打乱答案顺序
+            </label>
           </div>
+      </div>
+    </div>
 
-          <!-- 表格主体 -->
-          <div class="table-body">
-            <div v-for="(row, rowIndex) in tableStore.tableData" :key="rowIndex" class="table-row">
-              <div v-for="(cell, colIndex) in row" :key="colIndex" class="table-cell"
-                :style="getCellStyle(rowIndex + 2, colIndex)">
-                <input v-model="tableStore.tableData[rowIndex][colIndex]"
-                  @input="updateCell(rowIndex, colIndex, $event.target.value)">
-              </div>
-            </div>
+
+    <div class="box">
+          <div class="theme-setting">
+            <div class="theme-setting-title">设置游戏主题色</div>
+            <pick-colors v-model:value="color" show-alpha :colors="colors" :width="60" style="margin-right: 18px;" />
           </div>
         </div>
-      </div>
     </div>
     <div class="footer">
       <div class="preview-bar" @click="handlePreview">
@@ -47,53 +67,61 @@
 </template>
 
 <script setup>
-import { CreatDragGame } from "@/stores/CreatDragGame";
+  import { ref } from 'vue';
+  import PickColors from 'vue-pick-colors'
+  import { useRouter } from 'vue-router'
 
-const tableStore = CreatDragGame();
+  const router = useRouter()
+  
+  const colors = ref(['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED','#FFC9D4','#FFB05C'])
+  const color = '#ACE2FF'
 
-// 添加列
-const addColumn = () => {
-  tableStore.addColumn();
-};
-
-// 添加行
-const addRow = () => {
-  tableStore.addRow();
-};
-
-// 更新单元格数据
-const updateCell = (rowIndex, colIndex, value) => {
-  tableStore.updateCell(rowIndex, colIndex, value);
-};
-
-// 更新表头数据
-const updateHeader = (rowIndex, colIndex, value) => {
-  tableStore.updateHeader(rowIndex, colIndex, value);
-};
-
-// 预览处理
-const handlePreview = () => {
-  console.log("预览数据:", tableStore.tableData);
-};
-
-// 提交处理
-const handleSubmit = () => {
-  console.log("提交数据:", tableStore.tableData);
-};
-
-// 设置单元格样式
-const getCellStyle = (rowIndex, colIndex) => {
-  if (rowIndex < 2) {
-    return { backgroundColor: "#FFA07A", fontWeight: "bold" }; // 表头橙色
-  }
-  if (colIndex === 0) {
-    return { backgroundColor: "#FFD700" }; // 第一列金色
-  }
-  return { backgroundColor: "#ADD8E6" }; // 其他单元格浅蓝色
-};
-</script>
+  const columns = ref(2);
+  const rows = ref([
+    ['', ''],
+    ['', '']
+  ]);
+  const headers = ref([
+    ['', '']
+  ]);
+  const shuffleAnswers = ref(false);
+  const themeColor = ref('#0000ff');
+  
+  const addColumn = () => {
+    columns.value++;
+    rows.value.forEach(row => row.push(''));
+    headers.value[0].push('');
+  };
+  
+  const addRow = () => {
+    rows.value.push(new Array(columns.value).fill(''));
+  };
+  
+  const deleteColumn = (columnIndex) => {
+    columns.value--;
+    rows.value.forEach(row => row.splice(columnIndex, 1));
+    headers.value[0].splice(columnIndex, 1);
+  };
+  
+  const deleteRow = (rowIndex) => {
+    rows.value.splice(rowIndex, 1);
+  };
+  const goBack = () => {
+  router.go(-1);
+  };
+  </script>
 
 <style scoped>
+  .back-button {
+    left: 3vw;
+    top: 10px;
+    position:absolute;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: black;
+    cursor: pointer;
+  }
 .box {
   width: 91vw;
   border-radius: 10px;
@@ -108,8 +136,6 @@ const getCellStyle = (rowIndex, colIndex) => {
 .table-container {
   width: 100%;
   height: 100%;
-  /* text-align: center; */
-  /* padding: 10px; */
 }
 
 .editor-title {
@@ -132,52 +158,8 @@ const getCellStyle = (rowIndex, colIndex) => {
   width: 100%;
 }
 
-button {
-  margin: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
 
-/* 表格容器 */
-.table-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 91vw;
-  overflow-x: auto;
-  /* border: 1px solid #ccc; */
-}
 
-/* 表头 */
-.table-header {
-  display: flex;
-  flex-direction: column;
-  background-color: #eee;
-}
-
-/* 表体 */
-.table-body {
-  display: flex;
-  flex-direction: column;
-}
-
-/* 每一行 */
-.table-row {
-  display: flex;
-}
-
-/* 单元格 */
-.table-cell {
-  flex: 1;
-  padding: 9px;
-  text-align: center;
-  /* border: 1px solid #ddd; */
-}
-
-/* 表头单元格 */
-.header-cell {
-  font-weight: bold;
-  background-color: #FFA07A;
-}
 
 /* 底部按钮 */
 .footer {
@@ -206,5 +188,132 @@ button {
 
 .preview-bar:hover {
   background: #45a049;
+}
+
+
+.random-checkbox {
+    display: flex;
+    justify-content: center;
+  margin-bottom: 4px;
+  background-color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.add-btn {
+  width: 150px;
+  height: 37px;
+  margin: 8px 0 20px 0;
+  background: #ACE2FF;
+  border-radius: 6px;
+  font-family: Source Han Sans;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3662EC;
+  border: none;
+}
+  .th-head{
+    outline: none; 
+    border-bottom: 1px dashed #90D8FF;
+    border-left: 1px dashed #90D8FF;
+  }
+
+  .td-data{
+    border-bottom: 1px dashed #90D8FF;
+    border-left: 1px dashed #90D8FF;
+  }
+  .box {
+  width: 91vw;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ACE2FF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16px;
+}
+  .table-editor {
+    padding: 20px;
+    background-color: white;
+    /* border-radius: 8px; */
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  
+  th, td {
+    padding: 8px;
+    text-align: center;
+  }
+  
+  th input, td input {
+    width: calc(100% - 25px);
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+  }
+
+  .first-column {
+    background-color: #FFF1B8;
+    font-size: 3.4vw;
+  }
+  
+  .other-columns {
+    background-color: #E0EAFF;
+    font-size: 3.4vw;
+  }
+  
+  th button, td button {
+    /* margin-left: 5px; */
+    /* padding: 4px 8px;s */
+    /* background-color: #f56c6c; */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  /* th button:hover, td button:hover {
+    background-color: #e63e3e;
+  } */
+  
+  .controls {
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  
+  button {
+    /* margin-right: 10px; */
+    /* padding: 8px 16px; */
+    background-color: white;
+    color: red;
+    border: none;
+    /* border-radius: 4px; */
+    /* cursor: pointer; */
+  }
+  th input:focus, td input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.theme-setting {
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  justify-content: space-between;
+  padding: 7px 13px;
+}
+
+.theme-setting-title {
+  display: flex;
+  align-items: center;
+  font-family: Source Han Sans;
+  font-size: 18px;
+  font-weight: 500;
+  color: #3D3D3D;
 }
 </style>
