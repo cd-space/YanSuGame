@@ -11,53 +11,49 @@
       <button @click="resetGame" style="background-color: white; border: none; border-radius: 30px; width:10.9415vw ; height:5.8vw ; font-size: 2.0356vw; ">重置</button>
       <!-- <button @click="showAnswer "> 显示答案</button> -->
     </div>
-    <div class="options-container">
-      <div class="options-container2">
+
+
+   <div class="options-container">
+  <div class="options-container2">
+    <!-- 遍历左侧选项，并从打乱后的右侧选项中取值 -->
+    <div class="option-pair" v-for="(leftItem, index) in leftItems" :key="leftItem.id">
       <!-- 左侧选项 -->
-      <div class="side left">
-        <div
-          v-for="item in leftItems"
-          :key="item.id"
-          class="option"
-          :style="getOptionStyle(item.id, 'left')"
-          @click="handleLeftClick(item.id)"
-          :ref="(el) => setLeftRef(item.id, el)"
-        >
-          {{ item.content }}
-        </div>
+      <div
+        class="option left-option"
+        :style="getOptionStyle(leftItem.id, 'left')"
+        @click="handleLeftClick(leftItem.id)"
+        :ref="(el) => setLeftRef(leftItem.id, el)"
+      >
+        {{ leftItem.content }}
       </div>
-
-      <!-- 右侧选项 -->
-      <div class="side right">
-        <div
-          v-for="item in rightItems"
-          :key="item.id"
-          class="option"
-          :style="getOptionStyle(item.id, 'right')"
-          @click="handleRightClick(item.id)"
-          :ref="(el) => setRightRef(item.id, el)"
-        >
-          {{ item.content }}
-        </div>
+      
+      <!-- 右侧选项（取打乱后的对应索引项） -->
+      <div
+        class="option right-option"
+        :style="getOptionStyle(rightItems[index].id, 'right')"
+        @click="handleRightClick(rightItems[index].id)"
+        :ref="(el) => setRightRef(rightItems[index].id, el)"
+      >
+        {{ rightItems[index].content }}
       </div>
+    </div>
 
-      <!-- 连线画布 -->
-      <svg class="lines" ref="svg">
-        <line
-          v-for="(line, index) in lines"
-          :key="index"
-          :x1="line.x1"
-          :y1="line.y1"
-          :x2="line.x2"
-          :y2="line.y2"
-          :stroke="line.isCorrect ? '#ACE2FF' : 'red'"
-          stroke-width="2"
-        />
-      </svg>
-    </div></div>
+    <!-- 连线画布 -->
+    <svg class="lines" ref="svg">
+      <line
+        v-for="(line, index) in lines"
+        :key="index"
+        :x1="line.x1"
+        :y1="line.y1"
+        :x2="line.x2"
+        :y2="line.y2"
+        :stroke="line.isCorrect ? '#ACE2FF' : 'red'"
+        stroke-width="2"
+      />
+    </svg>
+  </div>
+</div>
 
-    <!-- <audio ref="correctSound" src="correctSoundSrc"></audio> -->
-    <!-- <audio ref="wrongSound" src="../assets/audio/errorAnswer.mp3"></audio> -->
   </div>
 </template>
 
@@ -269,6 +265,7 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
 }
 
 .options-container {
+  position: relative;
   width: 100%;
   height: calc(100% - 6vw);
   padding: 10vw 8.9vw;
@@ -277,16 +274,26 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   border-radius: 15px;
 }
 
-.options-container2{
+.options-container2 {
   display: flex;
-  justify-content: space-between;
-  position: relative;
-  overflow: auto; 
-  scrollbar-width: none; 
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start; /* 让内容从顶部开始排列 */
   width: 100%;
-  height: 100%;
+  max-height: 100%;
+  overflow-y: auto; 
+  position: relative;
+  scrollbar-width: none;
 }
 
+.option-pair {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
 .side {
   display: flex;
   flex-direction: column;
@@ -294,12 +301,24 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
 }
 
 .option {
-  padding: 10px 20px;
+  padding: 10px 10px;
   border: 2px solid #333;
   border-radius: 4px;
   cursor: pointer;
+  text-align: center;
   transition: background-color 0.3s, box-shadow 0.3s;
+
 }
+.right-option{
+  width: 31.2977vw;
+  box-sizing: border-box;
+}
+.left-option{
+  box-sizing: border-box;
+  width: 7.3791vw;
+  overflow-wrap: break-word;
+}
+
 
 .lines {
   position: absolute;
