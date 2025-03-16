@@ -1,7 +1,18 @@
 <template>
   <div class="container" :style="{ backgroundImage: color }">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+      <div style="height: 6vw; width: 6vw;">
+        <img v-if="audioEnabled" @click="audioEnabled = false" src="@/assets/images/openSound.png" alt="" style="height: 100; width: 100%;">
+        <img v-else @click="audioEnabled = true" src="@/assets/images/OffSound.png" alt="" style="height: 100; width: 100%;">
+      </div>
+      <div style="display: flex; align-items: center; font-size: 3vw;">
+        点击不同色块进行连线
+      </div>
+      <button @click="resetGame" style="background-color: white; border: none; border-radius: 30px; width:10.9415vw ; height:5.8vw ; font-size: 2.0356vw; ">重置</button>
+      <!-- <button @click="showAnswer "> 显示答案</button> -->
+    </div>
     <div class="options-container">
-      <!-- <button @click="resetGame">重置</button> -->
+      <div class="options-container2">
       <!-- 左侧选项 -->
       <div class="side left">
         <div
@@ -43,19 +54,47 @@
           stroke-width="2"
         />
       </svg>
-    </div>
+    </div></div>
+
+    <!-- <audio ref="correctSound" src="correctSoundSrc"></audio> -->
+    <!-- <audio ref="wrongSound" src="../assets/audio/errorAnswer.mp3"></audio> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, type ComponentPublicInstance } from 'vue'
+import successAudio from '../assets/audio/rightanswer.mp3';
+import failureAudio from '../assets/audio/errorAnswer.mp3';
+import challengeSuccessAudio from '../assets/audio/success.mp3';
+
 
 
 // 模拟数据
 const questionList = [
   { id: 0, left: 'Apple', right: '苹果' },
   { id: 1, left: 'Banana', right: '香蕉' },
-  { id: 2, left: 'Orange', right: '橙子' }
+  { id: 2, left: 'Orange', right: '橙子' },
+  { id: 3, left: 'Apple', right: '苹果' },
+  { id: 4, left: 'Banana', right: '香蕉' },
+  { id: 5, left: 'Orange', right: '橙子' },
+  { id: 6, left: 'Apple', right: '苹果' },
+  { id: 7, left: 'Banana', right: '香蕉' },
+  { id: 8, left: 'Orange', right: '橙子' },
+  { id: 9, left: 'Apple', right: '苹果' },
+  { id: 10, left: 'Banana', right: '香蕉' },
+  { id: 11, left: 'Orange', right: '橙子' },
+  { id: 12, left: 'Banana', right: '香蕉' },
+  { id: 13, left: 'Orange', right: '橙子' },
+  { id: 14, left: 'Banana', right: '香蕉' },
+  { id: 15, left: 'Orange', right: '橙子' },
+  { id: 16, left: 'Banana', right: '香蕉' },
+  { id: 17, left: 'Orange', right: '橙子' },
+  { id: 18, left: 'Banana', right: '香蕉' },
+  { id: 19, left: 'Orange', right: '橙子' },
+  { id: 20, left: 'Banana', right: '香蕉' },
+  { id: 21, left: 'Orange', right: '橙子' },
+  { id: 22, left: 'Banana', right: '香蕉' },
+  { id: 23, left: 'Orange', right: '橙子' },
 ]
 
 // 控制选项是否打乱
@@ -67,10 +106,17 @@ const selectedLeft = ref<number | null>(null)
 const selectedRight = ref<number | null>(null)
 const svg = ref<SVGSVGElement | null>(null)
 
+// 背景色
 const startColor = ref('#ACE2FF'); // 初始颜色（红色）
 const endColor = ref('white'); // 结束颜色（蓝色）
-
 const color = computed(() => `linear-gradient(to bottom, ${startColor.value} 75%, ${endColor.value})`);
+
+// 音效
+const audioEnabled = ref(true) 
+const successSound = new Audio(successAudio);
+const failureSound = new Audio(failureAudio);
+const challengeSuccessSound = new Audio(challengeSuccessAudio);
+
 
 
 // 计算左侧选项
@@ -128,6 +174,18 @@ const createLine = (leftId: number, rightId: number) => {
 
   const isCorrect = leftId === rightId
   lines.value.push({ leftId, rightId, isCorrect, x1: 0, y1: 0, x2: 0, y2: 0 })
+
+  if (audioEnabled.value) {
+    if (isCorrect){
+      successSound.currentTime = 0;
+      successSound.play();
+    } 
+    if (!isCorrect){
+      failureSound.currentTime = 0;
+      failureSound.play();
+    } 
+  }
+
   nextTick(updateLinePositions)
 }
 
@@ -162,6 +220,16 @@ const updateLinePositions = () => {
   })
 }
 
+// **显示答案**
+const showAnswer = () => {
+  lines.value = questionList.map(q => ({
+    leftId: q.id,
+    rightId: q.id, // 正确答案
+    isCorrect: true,
+    x1: 0, y1: 0, x2: 0, y2: 0
+  }))
+  nextTick(updateLinePositions)
+}
 // **重置游戏**
 const resetGame = () => {
   lines.value = [] // 清空所有连线
@@ -183,12 +251,61 @@ onBeforeUnmount(() => {
 })
 
 // 暴露方法
-defineExpose({ shuffleOptions, resetGame })
+defineExpose({ shuffleOptions, resetGame, showAnswer })
 </script>
 
 
 
 <style scoped>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+  margin-left: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+
+
+
 .container {
   width: 100%;
   height: 100%;
@@ -198,10 +315,22 @@ defineExpose({ shuffleOptions, resetGame })
 }
 
 .options-container {
+  width: 100%;
+  height: calc(100% - 6vw);
+  padding: 10vw 8.9vw;
+  box-sizing: border-box;
   background-color: white;
+
+}
+
+.options-container2{
   display: flex;
   justify-content: space-between;
   position: relative;
+  overflow: auto; 
+  scrollbar-width: none; 
+  width: 100%;
+  height: 100%;
 }
 
 .side {
