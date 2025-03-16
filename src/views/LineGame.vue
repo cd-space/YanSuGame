@@ -1,7 +1,7 @@
 <template>
-  <div class="container">
+  <div class="container" :style="{ backgroundImage: color }">
     <div class="options-container">
-      <button @click="resetGame">重置</button>
+      <!-- <button @click="resetGame">重置</button> -->
       <!-- 左侧选项 -->
       <div class="side left">
         <div
@@ -39,7 +39,7 @@
           :y1="line.y1"
           :x2="line.x2"
           :y2="line.y2"
-          :stroke="line.isCorrect ? color : 'red'"
+          :stroke="line.isCorrect ? '#ACE2FF' : 'red'"
           stroke-width="2"
         />
       </svg>
@@ -48,7 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, type ComponentPublicInstance } from 'vue'
+
 
 // 模拟数据
 const questionList = [
@@ -65,7 +66,12 @@ const rightRefs = ref<Record<number, HTMLElement>>({})
 const selectedLeft = ref<number | null>(null)
 const selectedRight = ref<number | null>(null)
 const svg = ref<SVGSVGElement | null>(null)
-const color = ref('#ACE2FF')
+
+const startColor = ref('#ACE2FF'); // 初始颜色（红色）
+const endColor = ref('white'); // 结束颜色（蓝色）
+
+const color = computed(() => `linear-gradient(to bottom, ${startColor.value} 75%, ${endColor.value})`);
+
 
 // 计算左侧选项
 const leftItems = computed(() => 
@@ -84,12 +90,18 @@ const shuffleOptions = (shuffle: boolean) => {
 }
 
 // 绑定元素
-const setLeftRef = (id: number, el: HTMLElement) => {
-  if (el) leftRefs.value[id] = el
+const setLeftRef = (id: number, el: Element | ComponentPublicInstance | null) => {
+  if (el instanceof HTMLElement) {
+    leftRefs.value[id] = el
+  }
 }
-const setRightRef = (id: number, el: HTMLElement) => {
-  if (el) rightRefs.value[id] = el
+
+const setRightRef = (id: number, el: Element | ComponentPublicInstance | null) => {
+  if (el instanceof HTMLElement) {
+    rightRefs.value[id] = el
+  }
 }
+
 
 // 处理点击
 const handleLeftClick = (leftId: number) => {
@@ -125,7 +137,7 @@ const getOptionStyle = (id: number, side: 'left' | 'right') => {
   const isSelected = (side === 'left' && selectedLeft.value === id) || (side === 'right' && selectedRight.value === id)
 
   return {
-    backgroundColor: line ? (line.isCorrect ? color.value : 'red') : color.value,
+    backgroundColor: line ? (line.isCorrect ? '#ACE2FF' : 'red') : '#EFEFEF',
     boxShadow: isSelected ? '0 0 10px rgba(0, 0, 0, 0.5)' : 'none'
   }
 }
@@ -178,11 +190,15 @@ defineExpose({ shuffleOptions, resetGame })
 
 <style scoped>
 .container {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   position: relative;
-  padding: 20px;
+  padding: 28px;
 }
 
 .options-container {
+  background-color: white;
   display: flex;
   justify-content: space-between;
   position: relative;
