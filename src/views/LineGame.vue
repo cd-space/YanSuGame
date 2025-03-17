@@ -14,7 +14,7 @@
 
 
    <div class="options-container">
-  <div class="options-container2">
+  <div class="options-container2" ref="options_container2">
     <!-- 遍历左侧选项，并从打乱后的右侧选项中取值 -->
     <div class="option-pair" v-for="(leftItem, index) in leftItems" :key="leftItem.id">
       <!-- 左侧选项 -->
@@ -39,7 +39,7 @@
     </div>
 
     <!-- 连线画布 -->
-    <svg class="lines" ref="svg">
+    <svg class="lines" ref="svg" :height="svgHeight">
       <line
         v-for="(line, index) in lines"
         :key="index"
@@ -76,21 +76,21 @@ const questionList = [
   { id: 6, left: 'Apple', right: '苹果' },
   { id: 7, left: 'Banana', right: '香蕉' },
   { id: 8, left: 'Orange', right: '橙子' },
-  { id: 9, left: 'Apple', right: '苹果' },
-  { id: 10, left: 'Banana', right: '香蕉' },
-  { id: 11, left: 'Orange', right: '橙子' },
-  { id: 12, left: 'Banana', right: '香蕉' },
-  { id: 13, left: 'Orange', right: '橙子' },
-  { id: 14, left: 'Banana', right: '香蕉' },
-  { id: 15, left: 'Orange', right: '橙子' },
-  { id: 16, left: 'Banana', right: '香蕉' },
-  { id: 17, left: 'Orange', right: '橙子' },
-  { id: 18, left: 'Banana', right: '香蕉' },
-  { id: 19, left: 'Orange', right: '橙子' },
-  { id: 20, left: 'Banana', right: '香蕉' },
-  { id: 21, left: 'Orange', right: '橙子' },
-  { id: 22, left: 'Banana', right: '香蕉' },
-  { id: 23, left: 'Orange', right: '橙子' },
+  // { id: 9, left: 'Apple', right: '苹果' },
+  // { id: 10, left: 'Banana', right: '香蕉' },
+  // { id: 11, left: 'Orange', right: '橙子' },
+  // { id: 12, left: 'Banana', right: '香蕉' },
+  // { id: 13, left: 'Orange', right: '橙子' },
+  // { id: 14, left: 'Banana', right: '香蕉' },
+  // { id: 15, left: 'Orange', right: '橙子' },
+  // { id: 16, left: 'Banana', right: '香蕉' },
+  // { id: 17, left: 'Orange', right: '橙子' },
+  // { id: 18, left: 'Banana', right: '香蕉' },
+  // { id: 19, left: 'Orange', right: '橙子' },
+  // { id: 20, left: 'Banana', right: '香蕉' },
+  // { id: 21, left: 'Orange', right: '橙子' },
+  // { id: 22, left: 'Banana', right: '香蕉' },
+  // { id: 23, left: 'Orange', right: '橙子' },
 ]
 
 // 控制选项是否打乱
@@ -113,7 +113,8 @@ const successSound = new Audio(successAudio);
 const failureSound = new Audio(failureAudio);
 const challengeSuccessSound = new Audio(challengeSuccessAudio);
 
-
+const options_container2 = ref(null); // 绑定滚动容器
+const svgHeight = ref(0); // SVG 的高度，初始为 0
 
 // 计算左侧选项
 const leftItems = computed(() => 
@@ -238,6 +239,7 @@ const resetGame = () => {
 
 // 生命周期
 onMounted(() => {
+  svgHeight.value = options_container2.value.scrollHeight;//动态调整svg高度
   window.addEventListener('resize', updateLinePositions)
   updateLinePositions()
 })
@@ -325,7 +327,6 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
   pointer-events: none;
 }
 </style>
