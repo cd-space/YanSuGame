@@ -2,57 +2,49 @@
   <div class="container" :style="{ backgroundImage: color }">
     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
       <div style="height: 6vw; width: 6vw;">
-        <img v-if="audioEnabled" @click="audioEnabled = false" src="@/assets/images/openSound.png" alt="" style="height: 100; width: 100%;">
-        <img v-else @click="audioEnabled = true" src="@/assets/images/OffSound.png" alt="" style="height: 100; width: 100%;">
+        <img v-if="audioEnabled" @click="audioEnabled = false" src="@/assets/images/openSound.png" alt=""
+          style="height: 100; width: 100%;">
+        <img v-else @click="audioEnabled = true" src="@/assets/images/OffSound.png" alt=""
+          style="height: 100; width: 100%;">
       </div>
       <div style="display: flex; align-items: center; font-size: 3vw;">
         点击不同色块进行连线
       </div>
-      <button @click="resetGame" style="background-color: white; border: none; border-radius: 30px; width:10.9415vw ; height:5.8vw ; font-size: 2.0356vw; ">重置</button>
+      <button @click="resetGame"
+        style="background-color: white; border: none; border-radius: 30px; width:10.9415vw ; height:5.8vw ; font-size: 2.0356vw; ">重置</button>
       <!-- <button @click="showAnswer "> 显示答案</button> -->
     </div>
 
 
-   <div class="options-container">
-  <div class="options-container2" ref="options_container2">
-    <!-- 遍历左侧选项，并从打乱后的右侧选项中取值 -->
-    <div class="option-pair" v-for="(leftItem, index) in leftItems" :key="leftItem.id">
-      <!-- 左侧选项 -->
-      <div
-        class="option left-option"
-        :style="getOptionStyle(leftItem.id, 'left')"
-        @click="handleLeftClick(leftItem.id)"
-        :ref="(el) => setLeftRef(leftItem.id, el)"
-      >
-        {{ leftItem.content }}
-      </div>
-      
-      <!-- 右侧选项（取打乱后的对应索引项） -->
-      <div
-        class="option right-option"
-        :style="getOptionStyle(rightItems[index].id, 'right')"
-        @click="handleRightClick(rightItems[index].id)"
-        :ref="(el) => setRightRef(rightItems[index].id, el)"
-      >
-        {{ rightItems[index].content }}
+    <div class="options-container">
+      <div class="options-container2" ref="options_container2">
+        <!-- 遍历左侧选项，并从打乱后的右侧选项中取值 -->
+        <div class="option-pair" v-for="(leftItem, index) in leftItems" :key="leftItem.id">
+          <!-- 左侧选项 -->
+          <div class="option left-option" :style="getOptionStyle(leftItem.id, 'left')"
+            @click="handleLeftClick(leftItem.id)" :ref="(el) => setLeftRef(leftItem.id, el)">
+            {{ leftItem.content }}
+          </div>
+
+          <!-- 右侧选项（取打乱后的对应索引项） -->
+          <div style="display: flex; align-items: center; padding-right: 5vw;">
+            <div class="option right-option" :style="getOptionStyle(rightItems[index].id, 'right')"
+              @click="handleRightClick(rightItems[index].id)" :ref="(el) => setRightRef(rightItems[index].id, el)">
+              {{ rightItems[index].content }}
+
+            </div>
+            <img v-if="lines.some(line => line.rightId === rightItems[index].id && line.isCorrect)"
+              src="@/assets/images/right.png" alt="✔" class="check-icon" />
+          </div>
+        </div>
+
+        <!-- 连线画布 -->
+        <svg class="lines" ref="svg" :height="svgHeight">
+          <line v-for="(line, index) in lines" :key="index" :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2"
+            :stroke="line.isCorrect ? '#ACE2FF' : 'red'" stroke-width="2" />
+        </svg>
       </div>
     </div>
-
-    <!-- 连线画布 -->
-    <svg class="lines" ref="svg" :height="svgHeight">
-      <line
-        v-for="(line, index) in lines"
-        :key="index"
-        :x1="line.x1"
-        :y1="line.y1"
-        :x2="line.x2"
-        :y2="line.y2"
-        :stroke="line.isCorrect ? '#ACE2FF' : 'red'"
-        stroke-width="2"
-      />
-    </svg>
-  </div>
-</div>
 
   </div>
 </template>
@@ -108,7 +100,7 @@ const endColor = ref('white'); // 结束颜色（蓝色）
 const color = computed(() => `linear-gradient(to bottom, ${startColor.value} 75%, ${endColor.value})`);
 
 // 音效
-const audioEnabled = ref(true) 
+const audioEnabled = ref(true)
 const successSound = new Audio(successAudio);
 const failureSound = new Audio(failureAudio);
 const challengeSuccessSound = new Audio(challengeSuccessAudio);
@@ -117,7 +109,7 @@ const options_container2 = ref(null); // 绑定滚动容器
 const svgHeight = ref(0); // SVG 的高度，初始为 0
 
 // 计算左侧选项
-const leftItems = computed(() => 
+const leftItems = computed(() =>
   questionList.map(item => ({ id: item.id, content: item.left }))
 )
 
@@ -173,14 +165,14 @@ const createLine = (leftId: number, rightId: number) => {
   lines.value.push({ leftId, rightId, isCorrect, x1: 0, y1: 0, x2: 0, y2: 0 })
 
   if (audioEnabled.value) {
-    if (isCorrect){
+    if (isCorrect) {
       successSound.currentTime = 0;
       successSound.play();
-    } 
-    if (!isCorrect){
+    }
+    if (!isCorrect) {
       failureSound.currentTime = 0;
       failureSound.play();
-    } 
+    }
   }
 
   nextTick(updateLinePositions)
@@ -190,12 +182,15 @@ const createLine = (leftId: number, rightId: number) => {
 const getOptionStyle = (id: number, side: 'left' | 'right') => {
   const line = lines.value.find(l => l[`${side}Id`] === id)
   const isSelected = (side === 'left' && selectedLeft.value === id) || (side === 'right' && selectedRight.value === id)
+  const isCorrect = line?.isCorrect ?? false
 
   return {
-    backgroundColor: line ? (line.isCorrect ? '#ACE2FF' : 'red') : '#EFEFEF',
-    boxShadow: isSelected ? '0 0 10px rgba(0, 0, 0, 0.5)' : 'none'
+    backgroundColor: line ? (isCorrect ? '#ACE2FF' : 'red') : '#EFEFEF',
+    boxShadow: isSelected ? '0 0 10px rgba(0, 0, 0, 0.5)' : 'none',
+    position: 'relative'
   }
 }
+
 
 // 更新连线位置
 const updateLinePositions = () => {
@@ -208,7 +203,7 @@ const updateLinePositions = () => {
     if (leftEl && rightEl) {
       const leftRect = leftEl.getBoundingClientRect()
       const rightRect = rightEl.getBoundingClientRect()
-      
+
       line.x1 = leftRect.right - svgRect.left
       line.y1 = leftRect.top + leftRect.height / 2 - svgRect.top
       line.x2 = rightRect.left - svgRect.left
@@ -255,9 +250,10 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
 
 
 <style scoped>
-.left{
+.left {
   display: block;
 }
+
 .container {
   width: 100%;
   height: 100%;
@@ -271,6 +267,7 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   width: 100%;
   height: calc(100% - 6vw);
   padding: 8vw 8.9vw;
+  padding: 8vw 3.9vw 8vw 7.9vw;
   box-sizing: border-box;
   background-color: white;
   border-radius: 15px;
@@ -280,10 +277,11 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: flex-start; /* 让内容从顶部开始排列 */
+  justify-content: flex-start;
+  /* 让内容从顶部开始排列 */
   width: 100%;
   max-height: 100%;
-  overflow-y: auto; 
+  overflow-y: auto;
   position: relative;
   scrollbar-width: none;
 }
@@ -296,6 +294,7 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   gap: 20px;
   padding: 10px 0;
 }
+
 .side {
   display: flex;
   flex-direction: column;
@@ -309,16 +308,20 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   cursor: pointer;
   text-align: center;
   transition: background-color 0.3s, box-shadow 0.3s;
+  font-size: 3.0534vw;
 
 }
-.right-option{
+
+.right-option {
   width: 31.2977vw;
   box-sizing: border-box;
 }
-.left-option{
+
+.left-option {
   box-sizing: border-box;
   width: 7.3791vw;
   overflow-wrap: break-word;
+  margin-left: 1vw;
 }
 
 
@@ -328,5 +331,15 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   left: 0;
   width: 100%;
   pointer-events: none;
+}
+
+.check-icon {
+  width: 4vw;
+  height: 4vw;
+    position: absolute;
+    right: 0vw;
+    /* z-index: 10; */
+    /* margin-left: 10px; */
+    /* vertical-align: middle; */
 }
 </style>
