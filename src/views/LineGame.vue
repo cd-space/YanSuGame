@@ -268,7 +268,7 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   position: relative;
   width: 100%;
   height: calc(100% - 6vw);
-  padding: 10vw 8.9vw;
+  padding: 8vw 8.9vw;
   box-sizing: border-box;
   background-color: white;
   border-radius: 15px;
@@ -302,7 +302,7 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
 
 .option {
   padding: 10px 10px;
-  border: 2px solid #333;
+  border: 0.5px solid #A3A3A3;
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
