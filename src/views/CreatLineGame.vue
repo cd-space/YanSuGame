@@ -124,7 +124,7 @@ function handlePreview() {
   linegameStore.setRandomizeAnswers(randomizeAnswers.value);
   linegameStore.setColor(color.value);
   router.push({
-    name: 'ManageLinecopy'})
+    name: 'PreviewLineGame'})
 }
 const goBack = () => {
   router.go(-1);

@@ -47,18 +47,27 @@
     </div>
 
   </div>
+
+  <!-- 通关页面 -->
+  <div v-if="gameCompleted" class="game-complete">
+      <h1>🎉 恭喜你完成挑战！🎉</h1>
+      <div style="display: flex;width: 30%; justify-content: space-between;">
+        <button @click="back">退出</button>
+        <button @click="resetGame">再玩一次</button>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, type ComponentPublicInstance } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, type ComponentPublicInstance,watch } from 'vue'
 import successAudio from '../assets/audio/rightanswer.mp3';
 import failureAudio from '../assets/audio/errorAnswer.mp3';
 import challengeSuccessAudio from '../assets/audio/success.mp3';
 
 
 
-// 模拟数据
-const questionList = [
+
+const questionList = ref([
   { id: 0, left: 'Apple', right: '苹果苹果苹果苹果苹果苹果苹果苹果' },
   { id: 1, left: 'Banana', right: '香蕉' },
   { id: 2, left: 'Orange', right: '橙子' },
@@ -68,22 +77,9 @@ const questionList = [
   { id: 6, left: 'Apple', right: '苹果' },
   { id: 7, left: 'Banana', right: '香蕉' },
   { id: 8, left: 'Orange', right: '橙子' },
-  // { id: 9, left: 'Apple', right: '苹果' },
-  // { id: 10, left: 'Banana', right: '香蕉' },
-  // { id: 11, left: 'Orange', right: '橙子' },
-  // { id: 12, left: 'Banana', right: '香蕉' },
-  // { id: 13, left: 'Orange', right: '橙子' },
-  // { id: 14, left: 'Banana', right: '香蕉' },
-  // { id: 15, left: 'Orange', right: '橙子' },
-  // { id: 16, left: 'Banana', right: '香蕉' },
-  // { id: 17, left: 'Orange', right: '橙子' },
-  // { id: 18, left: 'Banana', right: '香蕉' },
-  // { id: 19, left: 'Orange', right: '橙子' },
-  // { id: 20, left: 'Banana', right: '香蕉' },
-  // { id: 21, left: 'Orange', right: '橙子' },
-  // { id: 22, left: 'Banana', right: '香蕉' },
-  // { id: 23, left: 'Orange', right: '橙子' },
-]
+]);
+
+
 
 // 控制选项是否打乱
 const isShuffled = ref(true) // 默认打乱
@@ -95,9 +91,11 @@ const selectedRight = ref<number | null>(null)
 const svg = ref<SVGSVGElement | null>(null)
 
 // 背景色
-const startColor = ref('#ACE2FF'); // 初始颜色（红色）
-const endColor = ref('white'); // 结束颜色（蓝色）
+const startColor = ref('#ACE2FF'); 
+const endColor = ref('white'); 
 const color = computed(() => `linear-gradient(to bottom, ${startColor.value} 75%, ${endColor.value})`);
+
+const gameCompleted = ref(false); 
 
 // 音效
 const audioEnabled = ref(true)
@@ -110,12 +108,12 @@ const svgHeight = ref(0); // SVG 的高度，初始为 0
 
 // 计算左侧选项
 const leftItems = computed(() =>
-  questionList.map(item => ({ id: item.id, content: item.left }))
+questionList.value.map(item => ({ id: item.id, content: item.left }))
 )
 
 // 计算右侧选项（打乱控制）
 const rightItems = computed(() => {
-  const items = questionList.map(item => ({ id: item.id, content: item.right }))
+  const items =  questionList.value.map(item => ({ id: item.id, content: item.right }))
   return isShuffled.value ? [...items].sort(() => Math.random() - 0.5) : items
 })
 
@@ -159,24 +157,25 @@ const handleRightClick = (rightId: number) => {
 
 // 创建连线（先清除旧连线，再创建新连线）
 const createLine = (leftId: number, rightId: number) => {
-  lines.value = lines.value.filter(line => line.leftId !== leftId && line.rightId !== rightId)
-
-  const isCorrect = leftId === rightId
-  lines.value.push({ leftId, rightId, isCorrect, x1: 0, y1: 0, x2: 0, y2: 0 })
+  lines.value = lines.value.filter(line => line.leftId !== leftId && line.rightId !== rightId);
+  const isCorrect = leftId === rightId;
+  lines.value.push({ leftId, rightId, isCorrect, x1: 0, y1: 0, x2: 0, y2: 0 });
 
   if (audioEnabled.value) {
     if (isCorrect) {
       successSound.currentTime = 0;
       successSound.play();
-    }
-    if (!isCorrect) {
+    } else {
       failureSound.currentTime = 0;
       failureSound.play();
     }
   }
 
-  nextTick(updateLinePositions)
-}
+  nextTick(() => {
+    updateLinePositions();
+    checkGameEnd(); // 每次连线后检查游戏是否完成
+  });
+};
 
 // 计算选项样式
 const getOptionStyle = (id: number, side: 'left' | 'right') => {
@@ -214,7 +213,7 @@ const updateLinePositions = () => {
 
 // **显示答案**
 const showAnswer = () => {
-  lines.value = questionList.map(q => ({
+  lines.value =  questionList.value.map(q => ({
     leftId: q.id,
     rightId: q.id, // 正确答案
     isCorrect: true,
@@ -222,14 +221,37 @@ const showAnswer = () => {
   }))
   nextTick(updateLinePositions)
 }
-// **重置游戏**
+
+// 重置游戏
 const resetGame = () => {
-  lines.value = [] // 清空所有连线
-  isShuffled.value = false // 先设置为 false
-  nextTick(() => {
-    isShuffled.value = true // 重新设置为 true，触发重新计算
-  })
-}
+  lines.value = []; 
+  gameCompleted.value = false; 
+  if(isShuffled.value){
+    isShuffled.value = false; 
+    nextTick(() => {
+      isShuffled.value = true; 
+    });
+  }
+};
+
+// 检测游戏是否完成
+const checkGameEnd = () => {
+  if (lines.value.length === questionList.value.length && lines.value.every(line => line.isCorrect)) {
+    gameCompleted.value = true; // 显示通关页面
+    if (audioEnabled.value) {
+      challengeSuccessSound.currentTime = 0;
+      challengeSuccessSound.play();
+    }
+  }
+};
+
+//退出
+const back = () => {
+console.log('退出游戏')
+resetGame()
+};
+
+
 
 
 // 生命周期
@@ -237,14 +259,16 @@ onMounted(() => {
   svgHeight.value = options_container2.value.scrollHeight;//动态调整svg高度
   window.addEventListener('resize', updateLinePositions)
   updateLinePositions()
+  console.log(questionList.value); // 在子组件的 onMounted 中检查
+
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateLinePositions)
 })
 
-// 暴露方法
-defineExpose({ shuffleOptions, resetGame, showAnswer })
+
+defineExpose({ shuffleOptions, resetGame, showAnswer, questionList,startColor })
 </script>
 
 
@@ -260,6 +284,7 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   box-sizing: border-box;
   position: relative;
   padding: 28px;
+  box-sizing: border-box;
 }
 
 .options-container {
@@ -338,8 +363,32 @@ defineExpose({ shuffleOptions, resetGame, showAnswer })
   height: 4vw;
     position: absolute;
     right: 0vw;
-    /* z-index: 10; */
-    /* margin-left: 10px; */
-    /* vertical-align: middle; */
 }
+
+.game-complete {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 3vw;
+}
+
+.game-complete button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 1.5vw 2.5vw;
+  font-size: 2vw;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
 </style>
