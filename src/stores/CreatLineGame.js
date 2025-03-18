@@ -8,6 +8,7 @@ export const CreatLineGame = defineStore("LinegameStore", {
     ],
     randomizeAnswers: false,
     color: "#ACE2FF",
+    id:2,
   }),
   actions: {
     setQuestionList(questions) {

@@ -56,7 +56,7 @@
          <div class="preview-bar" @click="handlePreview">
            <div class="preview-btn"> 预览</div>
          </div>
-         <div class="preview-bar" @click="handlePreview">
+         <div class="preview-bar" @click="handleSubmit">
            <div class="preview-btn"> 确认提交</div>
          </div>
        </div>
@@ -101,7 +101,7 @@ function removeQuestion(index) {
   questionList.value.splice(index, 1)
 }
 
-/** “预览”按钮*/
+/** 预览按钮*/
 function handlePreview() {
   // 检测题目列表数量是否少于两个
   if (questionList.value.length < 2) {
@@ -126,6 +126,33 @@ function handlePreview() {
   router.push({
     name: 'PreviewLineGame'})
 }
+
+// 提交按钮
+function handleSubmit() {
+  // 检测题目列表数量是否少于两个
+  if (questionList.value.length < 2) {
+    showComponent.value = true
+    massige.value = '请至少添加两个题目!'
+    return
+  }
+
+  // 检测是否存在题干或答案为空的情况
+  for (const item of questionList.value) {
+    if (!item.left || !item.right) {
+      showComponent.value = true
+      massige.value = '请先完善所有题干和答案!'
+      return
+    }
+  }
+
+
+  linegameStore.setQuestionList(questionList.value);
+  linegameStore.setRandomizeAnswers(randomizeAnswers.value);
+  linegameStore.setColor(color.value);
+console.log('确认提交')
+}
+
+
 const goBack = () => {
   router.go(-1);
   };

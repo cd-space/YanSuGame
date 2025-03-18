@@ -30,6 +30,7 @@ const router = useRouter()
 const gameRef = ref()
 
 
+
 const showAnswer = () => {
   gameRef.value.showAnswer()
 }
