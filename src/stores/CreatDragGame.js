@@ -4,8 +4,7 @@ export const CreatDragGame = defineStore("tableStore", {
   state: () => ({
     columns: 2,
     headers: [
-      ["标题1", "标题2"],  // 第一行表头
-    //   ["副标题1", "副标题2"]  // 第二行表头
+      ["标题1", "标题2"],  
     ],
     tableData: [
       ["A1", "B1"],

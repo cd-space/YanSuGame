@@ -40,7 +40,7 @@
         </div>
         <div class="random-checkbox">
             <label>
-              <input type="checkbox" v-model="randomizeAnswers" />
+              <input type="checkbox"  />
               允许设置在预览中随机打乱答案顺序
             </label>
           </div>
