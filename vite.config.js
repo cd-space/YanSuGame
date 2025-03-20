@@ -11,5 +11,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src')
     }
   },
-  assetsInclude: ['**/*.mp3']
+  assetsInclude: ['**/*.mp3'],
+  server: {
+    host: '0.0.0.0', 
+    port: 8080,     
+    disableHostCheck: true 
+  }
 })

@@ -1,164 +1,208 @@
 <template>
-  <div class="table-editor">
-    <div class="box">
-      <table>
-        <thead>
-          <tr>
-            <th v-for="n in columns" :key="`header-${n}`" class="th-head">
-              <div style="display: flex;">
-                <input type="text" v-model="headers[0][n]" :placeholder="n === 1 ? '首列标题' : `表头`" />
-                <button v-if="n > 0" @click="deleteColumn(n-1)" style="color: red;font-size: 30px;">×</button>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, rowIndex) in rows" :key="`row-${rowIndex}`">
-            <td
-              v-for="(cell, cellIndex) in row"
-              :key="`cell-${rowIndex}-${cellIndex}`"
-              class="td-data"
-              @click="handleCellClick(rowIndex, cellIndex, $event)"
-            >
-              <input
-                v-if="cellIndex === 0"
-                type="text"
-                v-model="row[cellIndex]"
-                class="first-column"
-                placeholder="| 输入标题内容"
-              />
-              <input v-else type="text" v-model="row[cellIndex]" class="other-columns" placeholder="| 输入答案内容" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 画连线 -->
-      <svg class="connections-svg">
-        <line
-          v-for="(line, index) in connections"
-          :key="index"
-          :x1="line.startX"
-          :y1="line.startY"
-          :x2="line.endX"
-          :y2="line.endY"
-          stroke="blue"
-          stroke-width="2"
-        />
-      </svg>
-
-      <div class="controls">
-        <button @click="addColumn" class="add-btn">+ 添加列</button>
-        <button @click="addRow" class="add-btn">+ 添加行</button>
-        <button @click="resetConnections" class="add-btn">清空连线</button>
+  <div class="game-container">
+    <table>
+      <thead>
+        <tr>
+          <th v-for="(header, index) in headers[0]" :key="index">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, rowIndex) in tableData" :key="rowIndex">
+          <td class="question">{{ row[0] }}</td>
+          <td v-for="(cell, colIndex) in row.slice(1)" 
+              :key="colIndex" 
+              class="drop-zone" 
+              :class="getDropZoneClass(rowIndex, colIndex)"
+              @pointerup="onDrop($event, rowIndex, colIndex)">
+            <span v-if="filledAnswers[rowIndex] && filledAnswers[rowIndex][colIndex]"
+                  :class="{ dragging: isDragging && draggedFrom.rowIndex === rowIndex && draggedFrom.colIndex === colIndex }"
+                  @pointerdown="onPointerDown($event, filledAnswers[rowIndex][colIndex], rowIndex, colIndex)">
+              {{ filledAnswers[rowIndex][colIndex] }}
+            </span>
+            <span v-else class="placeholder">拖拽到此</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="options" @pointerup="onDropBack($event)">
+      <div 
+        v-for="(option, index) in availableOptions" 
+        :key="index" 
+        class="draggable" 
+        @pointerdown="onPointerDown($event, option)">
+        {{ option }}
       </div>
+    </div>
+    <!-- 拖拽时显示的悬浮元素 -->
+    <div v-if="isDragging" class="dragging-element" 
+         :style="{ left: dragPosition.x + 'px', top: dragPosition.y + 'px' }">
+      {{ draggedItem }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, computed } from 'vue';
 
-const columns = ref(2);
-const rows = ref([
-  ['', ''],
-  ['', '']
+const headers = ref([["标题1", "标题2", "标题3"]]);
+const tableData = ref([
+  ["A1", "B1", "C1"],
+  ["A2", "B2", "C2"]
 ]);
-const headers = ref([
-  ['', '']
-]);
-const connections = ref([]);
-const selectedCell = ref(null);
+const filledAnswers = ref({});
+const draggedItem = ref(null);
+const draggedFrom = ref({ rowIndex: null, colIndex: null });
+const isDragging = ref(false);
+const dragOffset = ref({ x: 0, y: 0 });
+const dragPosition = ref({ x: 0, y: 0 });
+const currentDropZone = ref({ rowIndex: null, colIndex: null });
 
-const addColumn = () => {
-  columns.value++;
-  rows.value.forEach(row => row.push(''));
-  headers.value[0].push('');
+const availableOptions = computed(() => {
+  const usedOptions = new Set();
+  Object.values(filledAnswers.value).forEach(row => {
+    if (row) Object.values(row).forEach(value => usedOptions.add(value));
+  });
+  return tableData.value.flatMap(row => row.slice(1)).filter(option => !usedOptions.has(option));
+});
+
+// pointerdown：开始拖拽
+const onPointerDown = (event, item, rowIndex = null, colIndex = null) => {
+  event.preventDefault();
+  draggedItem.value = item;
+  draggedFrom.value = { rowIndex, colIndex };
+  isDragging.value = true;
+  // 计算手指相对于目标元素的偏移量
+  const rect = event.target.getBoundingClientRect();
+  dragOffset.value = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  dragPosition.value = { x: event.clientX - dragOffset.value.x, y: event.clientY - dragOffset.value.y };
+
+  // 添加全局 pointermove 和 pointerup 监听
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
 };
 
-const addRow = () => {
-  rows.value.push(new Array(columns.value).fill(''));
+// pointermove：更新拖拽元素位置
+const onPointerMove = (event) => {
+  if (!isDragging.value) return;
+  dragPosition.value = { x: event.clientX - dragOffset.value.x, y: event.clientY - dragOffset.value.y };
 };
 
-const deleteColumn = (columnIndex) => {
-  columns.value--;
-  rows.value.forEach(row => row.splice(columnIndex, 1));
-  headers.value[0].splice(columnIndex, 1);
-};
-
-const deleteRow = (rowIndex) => {
-  rows.value.splice(rowIndex, 1);
-};
-
-const resetConnections = () => {
-  connections.value = [];
-  selectedCell.value = null;
-};
-
-// 计算元素的中心点
-const getCenterPosition = (element) => {
-  const rect = element.getBoundingClientRect();
-  return {
-    x: rect.left + rect.width / 2 + window.scrollX,
-    y: rect.top + rect.height / 2 + window.scrollY
-  };
-};
-
-// 处理点击连线逻辑
-const handleCellClick = async (rowIndex, cellIndex, event) => {
-  const targetElement = event.target.closest('td');
-  if (!targetElement) return;
-
-  const pos = getCenterPosition(targetElement);
-
-  if (!selectedCell.value) {
-    // 记录第一个选中的单元格
-    selectedCell.value = { rowIndex, cellIndex, pos };
+// pointerup：结束拖拽，根据落点执行放置逻辑
+const onPointerUp = (event) => {
+  if (!isDragging.value) return;
+  // 根据 pointerup 位置，判断是否落在某个目标单元格内
+  // 此处可根据实际情况增加对目标区域的判断逻辑
+  if (currentDropZone.value.rowIndex !== null) {
+    placeItem(currentDropZone.value.rowIndex, currentDropZone.value.colIndex);
   } else {
-    // 记录第二个单元格并画线
-    connections.value.push({
-      startX: selectedCell.value.pos.x,
-      startY: selectedCell.value.pos.y,
-      endX: pos.x,
-      endY: pos.y,
-      from: selectedCell.value,
-      to: { rowIndex, cellIndex }
-    });
-
-    // 清除当前选中
-    selectedCell.value = null;
+    // 如果没有放在目标区域，则将拖拽项放回原处
+    if (draggedFrom.value.rowIndex !== null) {
+      filledAnswers.value[draggedFrom.value.rowIndex][draggedFrom.value.colIndex] = null;
+    }
   }
+  cleanupDrag();
+};
+
+// 在目标单元格上记录 pointerup 时的落点信息
+const onDrop = (event, rowIndex, colIndex) => {
+  currentDropZone.value = { rowIndex, colIndex };
+};
+
+// 放回选项区域
+const onDropBack = (event) => {
+  if (draggedFrom.value.rowIndex !== null) {
+    filledAnswers.value[draggedFrom.value.rowIndex][draggedFrom.value.colIndex] = null;
+  }
+  cleanupDrag();
+};
+
+const placeItem = (rowIndex, colIndex) => {
+  if (draggedItem.value !== null) {
+    if (draggedFrom.value.rowIndex !== null && draggedFrom.value.colIndex !== null) {
+      filledAnswers.value[draggedFrom.value.rowIndex] ||= {};
+      filledAnswers.value[draggedFrom.value.rowIndex][draggedFrom.value.colIndex] = null;
+    }
+    filledAnswers.value[rowIndex] ||= {};
+    filledAnswers.value[rowIndex][colIndex] = draggedItem.value;
+  }
+};
+
+// 清理拖拽状态与全局事件监听
+const cleanupDrag = () => {
+  isDragging.value = false;
+  draggedItem.value = null;
+  draggedFrom.value = { rowIndex: null, colIndex: null };
+  currentDropZone.value = { rowIndex: null, colIndex: null };
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+};
+
+// 根据答案正确性或拖拽状态返回不同的 CSS 类
+const getDropZoneClass = (rowIndex, colIndex) => {
+  if (filledAnswers.value[rowIndex] && filledAnswers.value[rowIndex][colIndex]) {
+    return filledAnswers.value[rowIndex][colIndex] === tableData.value[rowIndex][colIndex + 1]
+      ? 'correct'
+      : 'incorrect';
+  }
+  return '';
 };
 </script>
 
-  
-  
 <style scoped>
-.connections-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+table {
+  border-collapse: collapse;
   width: 100%;
-  height: 100%;
-  pointer-events: none;
+  max-width: 600px;
 }
-.add-btn {
-  width: 100px;
-  height: 35px;
-  background: #ACE2FF;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #3662EC;
-  border: none;
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
 }
-.td-data {
-  position: relative;
-  border: 1px dashed #90D8FF;
+.drop-zone {
+  min-width: 100px;
+  min-height: 30px;
+  background-color: white;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
-.td-data.selected {
-  background-color: rgba(0, 0, 255, 0.2);
+.correct {
+  background-color: #a0e8a0 !important;
+}
+.incorrect {
+  background-color: #f5a5a5 !important;
+}
+.placeholder {
+  color: #aaa;
+}
+.options {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 50px;
+  background-color: #e0e0e0;
+  padding: 10px;
+}
+.draggable {
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+  cursor: grab;
+  border-radius: 5px;
+}
+.dragging-element {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1000;
+  background-color: #3498db;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>
-
