@@ -6,6 +6,7 @@ import Temp from '../views/Temp.vue';
 import LineGame from '../views/LineGame.vue'
 import PreviewLineGame from '../views/PreviewLineGame.vue'
 import DragGame from '../views/DragGame.vue'
+import PreviewDragGame from '../views/PreviewDragGame.vue'
 
 const routes = [
   {
@@ -27,6 +28,11 @@ const routes = [
     path: '/CreatDragGame',
     name: 'CreatDragGame',
     component: CreatDragGame
+  },
+  {
+    path: '/CreatDragGame/PreviewDragGame',
+    name: 'PreviewDragGame',
+    component: PreviewDragGame
   },
   {
     path: '/Temp',

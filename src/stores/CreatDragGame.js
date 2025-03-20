@@ -3,36 +3,59 @@ import { defineStore } from "pinia";
 export const CreatDragGame = defineStore("tableStore", {
   state: () => ({
     columns: 2,
-    headers: [
-      ["标题1", "标题2"],  
+    rows: [
+      ['', ''],
+      ['', '']
     ],
-    tableData: [
-      ["A1", "B1"],
-      ["A2", "B2"]
-    ]
+    headers: [
+      ['', '']
+    ],
+    shuffleAnswers: false,
+    themeColor: '#ACE2FF'
   }),
   actions: {
     // 添加列
     addColumn() {
       this.columns++;
-      this.headers.forEach(row => row.push(`新列${this.columns}`)); // 表头扩展
-      this.tableData.forEach(row => row.push("新列数据"));
+      this.rows.forEach(row => row.push(''));
+      this.headers[0].push('');
+    },
+
+    // 删除列
+    deleteColumn(columnIndex) {
+      this.columns--;
+      this.rows.forEach(row => row.splice(columnIndex, 1));
+      this.headers[0].splice(columnIndex, 1);
     },
 
     // 添加行
     addRow() {
-      const newRow = new Array(this.columns).fill("新行数据");
-      this.tableData.push(newRow);
+      this.rows.push(new Array(this.columns).fill(''));
+    },
+
+    // 删除行
+    deleteRow(rowIndex) {
+      this.rows.splice(rowIndex, 1);
     },
 
     // 更新单元格数据
-    updateCell(rowIndex, colIndex, value) {
-      this.tableData[rowIndex][colIndex] = value;
+    updateCell(rowIndex, cellIndex, value) {
+      this.rows[rowIndex][cellIndex] = value;
     },
 
     // 更新表头数据
-    updateHeader(rowIndex, colIndex, value) {
-      this.headers[rowIndex][colIndex] = value;
+    updateHeader(rowIndex, cellIndex, value) {
+      this.headers[rowIndex][cellIndex] = value;
+    },
+
+    // 切换答案顺序随机化
+    toggleShuffleAnswers() {
+      this.shuffleAnswers = !this.shuffleAnswers;
+    },
+
+    // 设置主题颜色
+    setThemeColor(color) {
+      this.themeColor = color;
     }
   }
 });

@@ -85,32 +85,31 @@ let massige = ref('')
 const randomizeAnswers = ref(linegameStore.randomizeAnswers)
 
 
-/** 颜色数组，包含一些默认颜色 */
 const colors = ref(['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED','#FFC9D4','#FFB05C'])
 const color = ref(linegameStore.color)
 
 
-/** 添加一条题目 */
+
 function addQuestion() {
   questionList.value.push({ id: linegameStore.id, left: '', right: '' })
   linegameStore.addid()
 }
 
-/** 删除某条题目 */
+
 function removeQuestion(index) {
   questionList.value.splice(index, 1)
 }
 
 /** 预览按钮*/
 function handlePreview() {
-  // 检测题目列表数量是否少于两个
+
   if (questionList.value.length < 2) {
     showComponent.value = true
     massige.value = '请至少添加两个题目!'
     return
   }
 
-  // 检测是否存在题干或答案为空的情况
+
   for (const item of questionList.value) {
     if (!item.left || !item.right) {
       showComponent.value = true
@@ -129,14 +128,14 @@ function handlePreview() {
 
 // 提交按钮
 function handleSubmit() {
-  // 检测题目列表数量是否少于两个
+
   if (questionList.value.length < 2) {
     showComponent.value = true
     massige.value = '请至少添加两个题目!'
     return
   }
 
-  // 检测是否存在题干或答案为空的情况
+
   for (const item of questionList.value) {
     if (!item.left || !item.right) {
       showComponent.value = true
@@ -401,7 +400,7 @@ box-sizing: border-box
 .tips-button{
   width: 100px;
   height: 30px;
-  background: #FFB05C;
+  background: #ACE2FF;
   border-radius: 5px;
   color: #FFFFFF;
   font-size: 14px;
@@ -410,5 +409,6 @@ box-sizing: border-box
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
+  border: none;
 }
 </style>

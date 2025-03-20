@@ -10,22 +10,22 @@
       <table>
         <thead>
           <tr>
-            <th v-for="n in columns" :key="`header-${n}`" class="th-head">
+            <th v-for="n in tableStore.columns" :key="`header-${n}`" class="th-head">
               <div style="display: flex;">
-                <input type="text" v-model="headers[0][n]" :placeholder="n === 1 ? '首列标题' : `表头`" style="font-size: 3.4vw;"/>
+                <input type="text" v-model="tableStore.headers[0][n-1]" :placeholder="n === 1 ? '| 首列标题' : `| 表头`" style="font-size: 3.4vw;"/>
                 <button v-if="n > 0" @click="deleteColumn(n-1)" style="color: red;font-size: 30px;">×</button>
               </div>
             </th>
           </tr>
         </thead>
         <tbody style="width: 100%;">
-          <tr v-for="(row, rowIndex) in rows" :key="`row-${rowIndex}`">
+          <tr v-for="(row, rowIndex) in tableStore.rows" :key="`row-${rowIndex}`">
             <td v-for="(cell, cellIndex) in row" :key="`cell-${rowIndex}-${cellIndex}`" class="td-data">
               <input v-if="cellIndex === 0" type="text" v-model="row[cellIndex]" class="first-column"
                 placeholder="| 输入标题内容" />
               <input v-else type="text" v-model="row[cellIndex]" class="other-columns" placeholder="| 输入答案内容" />
             </td>
-            <td v-if="columns > 0" class="td-dele" style="width: 30px;">
+            <td v-if="tableStore.columns > 0" class="td-dele" style="width: 30px;">
               <button @click="deleteRow(rowIndex)"><img src="@/assets/images/error.png" alt=""
                   style="width: 20px; height: 20px;"></button>
             </td>
@@ -40,18 +40,17 @@
         </div>
         <div class="random-checkbox">
             <label>
-              <input type="checkbox"  />
+              <input type="checkbox" v-model="tableStore.shuffleAnswers" />
               允许设置在预览中随机打乱答案顺序
             </label>
           </div>
       </div>
     </div>
 
-
     <div class="box">
           <div class="theme-setting">
             <div class="theme-setting-title">设置游戏主题色</div>
-            <pick-colors v-model:value="color" show-alpha :colors="colors" :width="60" style="margin-right: 18px;" />
+            <pick-colors v-model:value="tableStore.themeColor" show-alpha :colors="colors" :width="60" style="margin-right: 18px;" />
           </div>
         </div>
     </div>
@@ -64,52 +63,81 @@
       </div>
     </div>
   </div>
+
+  <div v-if="showComponent" class="tips">
+      <div>{{ massige }}</div>
+      <button @click="showComponent = false" class="tips-button">确定</button>
+    </div>
 </template>
 
+
 <script setup>
-  import { ref } from 'vue';
-  import PickColors from 'vue-pick-colors'
-  import { useRouter } from 'vue-router'
+import { ref } from 'vue'
+  import { CreatDragGame } from '@/stores/CreatDragGame';  
+  import PickColors from 'vue-pick-colors';
+  import { useRouter } from 'vue-router';
 
-  const router = useRouter()
-  
-  const colors = ref(['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED','#FFC9D4','#FFB05C'])
-  const color = '#ACE2FF'
+  const tableStore = CreatDragGame(); // 获取 store
+  const router = useRouter();
 
-  const columns = ref(2);
-  const rows = ref([
-    ['', ''],
-    ['', '']
-  ]);
-  const headers = ref([
-    ['', '']
-  ]);
-  const shuffleAnswers = ref(false);
-  const themeColor = ref('#0000ff');
-  
+  const colors = ['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED','#FFC9D4','#FFB05C'];
+
+  let showComponent = ref(false)
+  let massige = ref('')
+
   const addColumn = () => {
-    columns.value++;
-    rows.value.forEach(row => row.push(''));
-    headers.value[0].push('');
+    tableStore.addColumn();
   };
-  
+
   const addRow = () => {
-    rows.value.push(new Array(columns.value).fill(''));
+    tableStore.addRow();
   };
-  
-  const deleteColumn = (columnIndex) => {
-    columns.value--;
-    rows.value.forEach(row => row.splice(columnIndex, 1));
-    headers.value[0].splice(columnIndex, 1);
+
+  const deleteColumn = (index) => {
+    tableStore.deleteColumn(index);
   };
-  
-  const deleteRow = (rowIndex) => {
-    rows.value.splice(rowIndex, 1);
+
+  const deleteRow = (index) => {
+    tableStore.deleteRow(index);
   };
+
   const goBack = () => {
-  router.go(-1);
+    router.go(-1);
   };
-  </script>
+
+  const validateTable = () => {
+    if (tableStore.headers.some(header => header.some(col => !col))) {
+      showComponent.value = true
+      massige.value = '请完善题干';
+      return false;
+    }
+    if (tableStore.rows.some(rows => rows.some(col => !col))) {
+      showComponent.value = true
+      massige.value = '请完善题干';
+      return false;
+    }
+    if (tableStore.rows.length < 2 || tableStore.rows.some(row => row.length < 2)) {
+      showComponent.value = true
+      massige.value = '至少需要两道题';
+      return false;
+    }
+
+    return true;
+  };
+
+  const handlePreview = () => {
+    if (validateTable()) {
+      router.push({
+        name: 'PreviewDragGame'})
+    }
+  };
+
+  const handleSubmit = () => {
+    if (validateTable()) {
+      console.log('确认提交...');
+    }
+  };
+</script>
 
 <style scoped>
   .back-button {
@@ -186,9 +214,6 @@
   border: 1px solid #A3A3A3;
 }
 
-.preview-bar:hover {
-  background: #45a049;
-}
 
 
 .random-checkbox {
@@ -236,8 +261,6 @@
   .table-editor {
     padding: 20px;
     background-color: white;
-    /* border-radius: 8px; */
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   }
   
   table {
@@ -269,18 +292,13 @@
   }
   
   th button, td button {
-    /* margin-left: 5px; */
-    /* padding: 4px 8px;s */
-    /* background-color: #f56c6c; */
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
   
-  /* th button:hover, td button:hover {
-    background-color: #e63e3e;
-  } */
+
   
   .controls {
     margin-bottom: 10px;
@@ -288,13 +306,9 @@
   }
   
   button {
-    /* margin-right: 10px; */
-    /* padding: 8px 16px; */
     background-color: white;
     color: red;
     border: none;
-    /* border-radius: 4px; */
-    /* cursor: pointer; */
   }
   th input:focus, td input:focus {
   outline: none;
@@ -315,5 +329,40 @@
   font-size: 18px;
   font-weight: 500;
   color: #3D3D3D;
+}
+
+.tips {
+  display: flex;
+  justify-content: center;
+  padding:15px 10px 0px 10px ;
+  width: 198px;
+  min-height: 100px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: fixed;
+  font-family: Source Han Sans;
+font-size: 18px;
+font-weight: 500;
+color: #3D3D3D;
+box-sizing: border-box
+}
+
+.tips-button{
+  width: 100px;
+  height: 30px;
+  background: #ACE2FF;
+  border-radius: 5px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
 }
 </style>
