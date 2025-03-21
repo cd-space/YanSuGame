@@ -1,7 +1,7 @@
 <template>
   <div class="table-container">
     <div class="head">
-      <button class="back-button" @click="goBack">&lt;</button>
+      <button class="back-button" @click="goBack"><img src="../assets/images/back.png" alt="back" style="width:9px ; height: 16px;"></button>
       <div class="editor-title">编辑拖拽组装</div>
     </div>
 
@@ -25,7 +25,7 @@
                 placeholder="| 输入标题内容" />
               <input v-else type="text" v-model="row[cellIndex]" class="other-columns" placeholder="| 输入答案内容" />
             </td>
-            <td v-if="tableStore.columns > 0" class="td-dele" style="width: 30px;">
+            <td v-if="tableStore.columns > 0" class="td-dele" style="width: 30px;padding-left: 0;">
               <button @click="deleteRow(rowIndex)"><img src="@/assets/images/error.png" alt=""
                   style="width: 20px; height: 20px;"></button>
             </td>
@@ -39,8 +39,8 @@
           <button @click="addRow" class="add-btn">+ 添加行</button>
         </div>
         <div class="random-checkbox">
-            <label>
-              <input type="checkbox" v-model="tableStore.shuffleAnswers" />
+            <label style="display: flex; justify-content: center; align-items: center;">
+              <input type="checkbox" v-model="randomizeAnswers" style="width: 15px; height: 15px; margin: 3px;" />
               允许设置在预览中随机打乱答案顺序
             </label>
           </div>
@@ -55,10 +55,10 @@
         </div>
     </div>
     <div class="footer">
-      <div class="preview-bar" @click="handlePreview">
+      <div class="preview-bar" @click="handlePreview" style="border-left: 2px solid #A3A3A3;">
         <div class="preview-btn">预览</div>
       </div>
-      <div class="preview-bar" @click="handleSubmit">
+      <div class="preview-bar" @click="handleSubmit" style="border-right: 2px solid #A3A3A3;">
         <div class="preview-btn">确认提交</div>
       </div>
     </div>
@@ -166,17 +166,21 @@ import { ref } from 'vue'
   height: 100%;
 }
 
-.editor-title {
-  width: 100%;
+.head{
   height: 53px;
-  text-align: center;
-  align-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #D8D8D8;
+
+}
+/* 顶部标题 */
+.editor-title {
   font-family: Source Han Sans;
   font-size: 24px;
   font-weight: 500;
   font-weight: normal;
   color: #3D3D3D;
-  background: #D8D8D8;
 }
 
 .middle {
@@ -208,7 +212,7 @@ import { ref } from 'vue'
   height: 53px;
   background-color: #f0f0f0;
   font-family: Source Han Sans;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   color: #3D3D3D;
   border: 1px solid #A3A3A3;
@@ -227,7 +231,7 @@ import { ref } from 'vue'
 }
 
 .add-btn {
-  width: 150px;
+  width: clamp(20px,30vw,250px);
   height: 37px;
   margin: 8px 0 20px 0;
   background: #ACE2FF;

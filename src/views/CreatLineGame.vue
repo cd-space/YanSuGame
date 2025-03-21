@@ -1,7 +1,7 @@
 <template>
     <div class="editor-wrapper">
       <div class="head">
-        <button class="back-button" @click="goBack">&lt;</button>
+        <button class="back-button" @click="goBack"><img src="../assets/images/back.png" alt="back" style="width:9px ; height: 16px;"></button>
         <div class="editor-title">编辑连线配对</div>
       </div>
 
@@ -14,20 +14,29 @@
 
           <div class="qa-list">
             <div v-for="(item, index) in questionList" :key="index" class="qa-row">
-              <div class="qa-box">
-                <input v-model="item.left" type="text" class="qa-input" placeholder="| 输入题干内容" />
-              </div>
-
-              <div class="dash-line">
-                <div class="dash-line-content"></div>
-              </div>
-
-              <div class="qa-box">
-                <input v-model="item.right" type="text" class="qa-input" placeholder="| 输入答案内容" />
+              <div style="flex: 2;">
                 
+                <div class="qa-box">
+                  <input v-model="item.left" type="text" class="qa-input" placeholder="| 输入题干内容" />
+                </div>
               </div>
 
-              <button class="delete-btn" @click="removeQuestion(index)"></button>
+              <div style="flex: 0.3;">
+
+                <div class="dash-line">
+                  <div class="dash-line-content"></div>
+                </div>
+              </div>
+
+              <div style="flex: 2; display: flex; align-items: center;">
+
+                <div class="qa-box">
+                  <input v-model="item.right" type="text" class="qa-input" placeholder="| 输入答案内容" />
+                  
+                </div>
+  
+                <button class="delete-btn" @click="removeQuestion(index)"></button>
+              </div>
             </div>
 
             <button class="add-btn" @click="addQuestion">
@@ -37,8 +46,8 @@
 
           <!-- 是否随机打乱答案的勾选项 -->
           <div class="random-checkbox">
-            <label>
-              <input type="checkbox" v-model="randomizeAnswers" />
+            <label style="display: flex; justify-content: center; align-items: center;">
+              <input type="checkbox" v-model="randomizeAnswers" style="width: 15px; height: 15px; margin: 3px;" />
               允许设置在预览中随机打乱答案顺序
             </label>
           </div>
@@ -54,10 +63,10 @@
 
       <!-- 底部按钮 -->
        <div style="display: flex; position: fixed;bottom: 0; width: 100%;">
-         <div class="preview-bar" @click="handlePreview">
+         <div class="preview-bar" @click="handlePreview" style="border-left: 2px solid #A3A3A3;">
            <div class="preview-btn"> 预览</div>
          </div>
-         <div class="preview-bar" @click="handleSubmit">
+         <div class="preview-bar" @click="handleSubmit" style="border-right: 2px solid #A3A3A3;">
            <div class="preview-btn"> 确认提交</div>
          </div>
        </div>
@@ -191,18 +200,21 @@ const goBack = () => {
   position: relative;
 }
 
+.head{
+  height: 53px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #D8D8D8;
+
+}
 /* 顶部标题 */
 .editor-title {
-  width: 100%;
-  height: 53px;
-  text-align: center;
-  align-content: center;
   font-family: Source Han Sans;
   font-size: 24px;
   font-weight: 500;
   font-weight: normal;
   color: #3D3D3D;
-  background: #D8D8D8;
 }
 
 /* 题目/答案表头 */
@@ -274,7 +286,7 @@ const goBack = () => {
 
 
 .dash-line {
-  width: 33px;
+  width: 100%;
   height: 2px;
   background: transparent;
   display: flex;
@@ -302,6 +314,9 @@ const goBack = () => {
 
 
 .add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 138px;
   height: 37px;
   padding: 10px 0;
@@ -317,6 +332,9 @@ const goBack = () => {
 
 
 .random-checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 14px;
   background-color: #fff;
   font-size: 14px;
@@ -361,7 +379,7 @@ const goBack = () => {
   height: 53px;
   background-color: #f0f0f0;
   font-family: Source Han Sans;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   color: #3D3D3D;
   border: 1px solid #A3A3A3;

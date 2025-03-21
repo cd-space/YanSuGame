@@ -1,7 +1,7 @@
 <template>
     <div class="container">
       <header class="header">
-        <button class="back-button" @click="goBack">&lt;</button>
+        <button class="back-button" @click="goBack"><img src="../assets/images/back.png" alt="back" style="width:9px ; height: 16px;"></button>
         <span style="font-family: Source Han Sans;
             font-size: 18px;
             font-weight: 500;
