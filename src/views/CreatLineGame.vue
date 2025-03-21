@@ -24,6 +24,7 @@
 
               <div class="qa-box">
                 <input v-model="item.right" type="text" class="qa-input" placeholder="| 输入答案内容" />
+                
               </div>
 
               <button class="delete-btn" @click="removeQuestion(index)"></button>
@@ -262,12 +263,12 @@ const goBack = () => {
   background-color: transparent;
   text-align: center;
   font-family: Source Han Sans;
-  font-size: 3.5vw;
+  font-size: clamp(10px, 3.4vw, 20px);
   color: #000000;
 }
 .qa-input::placeholder {
   font-family: Source Han Sans;
-  font-size: 3.5vw;
+  font-size: clamp(10px, 3.4vw, 20px);
   color: #A3A3A3;
 }
 

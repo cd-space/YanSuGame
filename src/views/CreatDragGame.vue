@@ -12,7 +12,7 @@
           <tr>
             <th v-for="n in tableStore.columns" :key="`header-${n}`" class="th-head">
               <div style="display: flex;">
-                <input type="text" v-model="tableStore.headers[0][n-1]" :placeholder="n === 1 ? '| 首列标题' : `| 表头`" style="font-size: 3.4vw;"/>
+                <input type="text" v-model="tableStore.headers[0][n-1]" :placeholder="n === 1 ? '| 首列标题' : `| 表头`" style="font-size:clamp(10px, 3.4vw, 20px);"/>
                 <button v-if="n > 0" @click="deleteColumn(n-1)" style="color: red;font-size: 30px;">×</button>
               </div>
             </th>
@@ -283,12 +283,12 @@ import { ref } from 'vue'
 
   .first-column {
     background-color: #FFF1B8;
-    font-size: 3.4vw;
+    font-size:clamp(10px, 3.4vw, 20px);
   }
   
   .other-columns {
     background-color: #E0EAFF;
-    font-size: 3.4vw;
+    font-size: clamp(10px, 3.4vw, 20px);
   }
   
   th button, td button {
@@ -314,6 +314,11 @@ import { ref } from 'vue'
   outline: none;
   box-shadow: none;
 }
+
+th input, td input {
+  text-align: center;
+}
+
 .theme-setting {
   width: 100%;
   display: flex;
@@ -365,4 +370,5 @@ box-sizing: border-box
   transform: translateX(-50%);
   border: none;
 }
+
 </style>
