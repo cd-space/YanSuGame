@@ -7,6 +7,7 @@ import LineGame from '../views/LineGame.vue'
 import PreviewLineGame from '../views/PreviewLineGame.vue'
 import DragGame from '../views/DragGame.vue'
 import PreviewDragGame from '../views/PreviewDragGame.vue'
+import PlayDragGame from '../views/PlayDragGame.vue'
 
 const routes = [
   {
@@ -48,6 +49,18 @@ const routes = [
     path: '/DragGame',
     name: 'DragGame',
     component: DragGame
+  },
+
+  // {
+  //   path: '/PlayDragGame/1',
+  //   name: 'PlayDragGame',
+  //   component: PlayDragGame
+  // },
+
+  {
+    path: '/PlayDragGame/:id',
+    name: 'PlayDragGame',
+    component: PlayDragGame
   },
 
 ];

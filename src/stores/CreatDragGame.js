@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { v4 as uuidv4 } from 'uuid';
 
 export const CreatDragGame = defineStore("tableStore", {
   state: () => ({
@@ -56,6 +57,30 @@ export const CreatDragGame = defineStore("tableStore", {
     // 设置主题颜色
     setThemeColor(color) {
       this.themeColor = color;
-    }
+    },
+
+     // 生成唯一ID并保存数据
+     saveToLocalStorage() {
+      const id = uuidv4(); // 生成唯一ID
+      const savedData = JSON.parse(localStorage.getItem('dragGames') || '{}');
+      savedData[id] = { ...this.$state, id };
+      localStorage.setItem('dragGames', JSON.stringify(savedData));
+      return id; // 返回唯一ID
+    },
+
+    // 根据ID加载数据
+    loadFromLocalStorage(id) {
+      const savedData = JSON.parse(localStorage.getItem('dragGames') || '{}');
+      if (savedData[id]) {
+        this.$patch(savedData[id]);
+      }
+    },
+
+    // 删除指定ID的数据
+    deleteFromLocalStorage(id) {
+      const savedData = JSON.parse(localStorage.getItem('dragGames') || '{}');
+      delete savedData[id];
+      localStorage.setItem('dragGames', JSON.stringify(savedData));
+    },
   }
 });

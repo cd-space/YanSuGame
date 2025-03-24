@@ -40,7 +40,7 @@
         </div>
         <div class="random-checkbox">
             <label style="display: flex; justify-content: center; align-items: center;">
-              <input type="checkbox" v-model="randomizeAnswers" style="width: 15px; height: 15px; margin: 3px;" />
+              <input type="checkbox" v-model="tableStore.shuffleAnswers" style="width: 15px; height: 15px; margin: 3px;" />
               允许设置在预览中随机打乱答案顺序
             </label>
           </div>
@@ -134,7 +134,12 @@ import { ref } from 'vue'
 
   const handleSubmit = () => {
     if (validateTable()) {
-      console.log('确认提交...');
+      // console.log('DragGame确认提交...');
+      const gameId = tableStore.saveToLocalStorage(); // 保存数据并生成唯一ID
+      console.log(gameId,'gameId')
+      const gameUrl = `${window.location.origin}/#/PlayDragGame/${gameId}`;
+      console.log(gameUrl,'gameUrl')
+      router.push(`/PlayDragGame/${gameId}`); 
     }
   };
 </script>
