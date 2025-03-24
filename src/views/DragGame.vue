@@ -18,11 +18,10 @@
             <td v-for="(cell, colIndex) in row.slice(1)" :key="colIndex" class="drop-zone"
               :class="getDropZoneClass(rowIndex, colIndex)" @drop="onDrop($event, rowIndex, colIndex)"
               @dragover.prevent="onDragOver($event, rowIndex, colIndex)" @dragleave="onDragLeave(rowIndex, colIndex)"
-              @touchmove.prevent="onTouchMove($event, rowIndex, colIndex)"
-              @touchend.prevent="onTouchEnd(rowIndex, colIndex)">
+             >
               <span v-if="filledAnswers[rowIndex] && filledAnswers[rowIndex][colIndex]" draggable="true"
                 @dragstart="onDragStart(filledAnswers[rowIndex][colIndex], rowIndex, colIndex)"
-                @touchstart.prevent="onTouchStart($event, filledAnswers[rowIndex][colIndex], rowIndex, colIndex)">
+               >
                 {{ filledAnswers[rowIndex][colIndex] }}
               </span>
               <span v-else class="placeholder">拖拽到此</span>
@@ -38,9 +37,9 @@
       </button>
       <button @click="showAnswers">显示答案</button> -->
 
-      <div class="options" @drop="onDropBack($event)" @dragover.prevent @touchend.prevent="onTouchEndBack">
+      <div class="options" @drop="onDropBack($event)" @dragover.prevent >
         <div v-for="(option, index) in availableOptions" :key="index" class="draggable" draggable="true"
-          @dragstart="onDragStart(option)" @touchstart.prevent="onTouchStart($event, option)">
+          @dragstart="onDragStart(option)">
           {{ option }}
         </div>
       </div>
@@ -148,33 +147,6 @@ const checkGameStatus = () => {
     gameCleared.value = true;
   } else {
     gameCleared.value = false;
-  }
-};
-
-const onTouchStart = (event, item, rowIndex = null, colIndex = null) => {
-  event.preventDefault(); // 防止默认触摸行为
-  draggedItem.value = item;
-  draggedFrom.value = { rowIndex, colIndex };
-  event.target.classList.add('dragging');
-};
-
-const onTouchMove = (event, rowIndex, colIndex) => {
-  event.preventDefault(); // 防止页面默认滚动
-  hoveredCell.value = { rowIndex, colIndex };
-};
-
-
-const onTouchEnd = (rowIndex, colIndex) => {
-  if (draggedItem.value) {
-    placeItem(rowIndex, colIndex);
-  }
-};
-
-const onTouchEndBack = () => {
-  if (draggedItem.value !== null && draggedFrom.value.rowIndex !== null) {
-    filledAnswers.value[draggedFrom.value.rowIndex][draggedFrom.value.colIndex] = null;
-    draggedItem.value = null;
-    draggedFrom.value = { rowIndex: null, colIndex: null };
   }
 };
 
