@@ -101,8 +101,8 @@ const color = ref(linegameStore.color)
 
 
 function addQuestion() {
-  questionList.value.push({ id: linegameStore.id, left: '', right: '' })
-  linegameStore.addid()
+  questionList.value.push({ id: linegameStore.nextId, left: '', right: '' })
+  linegameStore.addnextId()
 }
 
 
@@ -158,7 +158,14 @@ function handleSubmit() {
   linegameStore.setQuestionList(questionList.value);
   linegameStore.setRandomizeAnswers(randomizeAnswers.value);
   linegameStore.setColor(color.value);
-console.log('确认提交')
+
+  const gameId = linegameStore.saveToLocalStorage();
+  const basePath = '/release/app/engineering/YanSUGame/index.html';
+  const fullLink = `${window.location.origin}${basePath}#/PlayDragGame/${gameId}`;
+  console.log('游戏链接:', fullLink);
+
+  // router.push(`/PlayLineGame/${gameId}`);
+
 }
 
 
