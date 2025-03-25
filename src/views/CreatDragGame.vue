@@ -4,6 +4,7 @@
       <button class="back-button" @click="goBack"><img src="../assets/images/back.png" alt="back"
           style="width:9px ; height: 16px;"></button>
       <div class="editor-title">编辑拖拽组装</div>
+      <button @click="reset" class="reset-button"> 重置</button>
     </div>
 
     <div class="middle">
@@ -162,9 +163,10 @@ const handleSubmit = () => {
     // router.push(`/PlayDragGame/${gameId}`);
   }
 };
-onMounted(() => {
+
+const reset = () => {
   tableStore.reset();
-});
+};
 </script>
 
 <style scoped>
@@ -418,5 +420,15 @@ td input {
   transform: translateX(-50%);
   border: none;
   margin-top: 20px;
+}
+
+.reset-button{
+  position: absolute;
+  right: 3.5vw;
+  border-radius: 8px;
+  color: #000000;
+  font-size: clamp(10px, 3.4vw, 20px);
+  padding: 5px;
+  border: none;
 }
 </style>

@@ -1,88 +1,90 @@
 <template>
-    <div class="editor-wrapper">
-      <div class="head">
-        <button class="back-button" @click="goBack"><img src="../assets/images/back.png" alt="back" style="width:9px ; height: 16px;"></button>
-        <div class="editor-title">编辑连线配对</div>
-      </div>
+  <div class="editor-wrapper">
+    <div class="head">
+      <button class="back-button" @click="goBack"><img src="../assets/images/back.png" alt="back"
+          style="width:9px ; height: 16px;"></button>
+      <div class="editor-title">编辑连线配对</div>
+      <button @click="reset" class="reset-button"> 重置</button>
+    </div>
 
-      <div class="middle">
-        <div class="box">
-          <div class="qa-header">
-            <div class="header-item" style="border-right: 1px dashed #90D8FF;">题干</div>
-            <div class="header-item">答案</div>
-          </div>
+    <div class="middle">
+      <div class="box">
+        <div class="qa-header">
+          <div class="header-item" style="border-right: 1px dashed #90D8FF;">题干</div>
+          <div class="header-item">答案</div>
+        </div>
 
-          <div class="qa-list">
-            <div v-for="(item, index) in questionList" :key="index" class="qa-row">
-              <div style="flex: 2;">
-                
-                <div class="qa-box">
-                  <input v-model="item.left" type="text" class="qa-input" placeholder="| 输入题干内容" />
-                </div>
-              </div>
+        <div class="qa-list">
+          <div v-for="(item, index) in questionList" :key="index" class="qa-row">
+            <div style="flex: 2;">
 
-              <div style="flex: 0.3;">
-
-                <div class="dash-line">
-                  <div class="dash-line-content"></div>
-                </div>
-              </div>
-
-              <div style="flex: 2; display: flex; align-items: center;">
-
-                <div class="qa-box">
-                  <input v-model="item.right" type="text" class="qa-input" placeholder="| 输入答案内容" />
-                  
-                </div>
-  
-                <button class="delete-btn" @click="removeQuestion(index)"></button>
+              <div class="qa-box">
+                <input v-model="item.left" type="text" class="qa-input" placeholder="| 输入题干内容" />
               </div>
             </div>
 
-            <button class="add-btn" @click="addQuestion">
-              + 添加题目
-            </button>
+            <div style="flex: 0.3;">
+
+              <div class="dash-line">
+                <div class="dash-line-content"></div>
+              </div>
+            </div>
+
+            <div style="flex: 2; display: flex; align-items: center;">
+
+              <div class="qa-box">
+                <input v-model="item.right" type="text" class="qa-input" placeholder="| 输入答案内容" />
+
+              </div>
+
+              <button class="delete-btn" @click="removeQuestion(index)"></button>
+            </div>
           </div>
 
-          <!-- 是否随机打乱答案的勾选项 -->
-          <div class="random-checkbox">
-            <label style="display: flex; justify-content: center; align-items: center;">
-              <input type="checkbox" v-model="randomizeAnswers" style="width: 15px; height: 15px; margin: 3px;" />
-              允许设置在预览中随机打乱答案顺序
-            </label>
-          </div>
+          <button class="add-btn" @click="addQuestion">
+            + 添加题目
+          </button>
         </div>
 
-        <div class="box">
-          <div class="theme-setting">
-            <div class="theme-setting-title">设置游戏主题色</div>
-            <pick-colors v-model:value="color" show-alpha :colors="colors" :width="60" style="margin-right: 18px;" />
-          </div>
+        <!-- 是否随机打乱答案的勾选项 -->
+        <div class="random-checkbox">
+          <label style="display: flex; justify-content: center; align-items: center;">
+            <input type="checkbox" v-model="randomizeAnswers" style="width: 15px; height: 15px; margin: 3px;" />
+            允许设置在预览中随机打乱答案顺序
+          </label>
         </div>
       </div>
 
-      <!-- 底部按钮 -->
-       <div style="display: flex; position: fixed;bottom: 0; width: 100%;">
-         <div class="preview-bar" @click="handlePreview" style="border-left: 2px solid #A3A3A3;">
-           <div class="preview-btn"> 预览</div>
-         </div>
-         <div class="preview-bar" @click="handleSubmit" style="border-right: 2px solid #A3A3A3;">
-           <div class="preview-btn"> 确认提交</div>
-         </div>
-       </div>
+      <div class="box">
+        <div class="theme-setting">
+          <div class="theme-setting-title">设置游戏主题色</div>
+          <pick-colors v-model:value="color" show-alpha :colors="colors" :width="60" style="margin-right: 18px;" />
+        </div>
+      </div>
     </div>
 
-    <div v-if="showComponent" class="tips">
-      <div style="display: flex; align-content: center; justify-content: center;">{{ massige }}</div>
-      <button @click="showComponent = false" class="tips-button">确定</button>
+    <!-- 底部按钮 -->
+    <div style="display: flex; position: fixed;bottom: 0; width: 100%;">
+      <div class="preview-bar" @click="handlePreview" style="border-left: 2px solid #A3A3A3;">
+        <div class="preview-btn"> 预览</div>
+      </div>
+      <div class="preview-bar" @click="handleSubmit" style="border-right: 2px solid #A3A3A3;">
+        <div class="preview-btn"> 确认提交</div>
+      </div>
     </div>
-    <div v-if="showComponent2" class="tips">
-   游戏创建成功！游戏链接：<a :href='fullLink' target="_self">{{ fullLink }}</a>
+  </div>
+
+  <div v-if="showComponent" class="tips">
+    <div style="display: flex; align-content: center; justify-content: center;">{{ massige }}</div>
+    <button @click="showComponent = false" class="tips-button">确定</button>
+  </div>
+  <div v-if="showComponent2" class="tips">
+    游戏创建成功！游戏链接：<a :href='fullLink' target="_self">{{ fullLink }}</a>
     <button @click="showComponent2 = false" class="tips-button">确定</button>
   </div>
 
 </template>
-  
+
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -95,13 +97,13 @@ let showComponent = ref(false)
 let showComponent2 = ref(false)
 let fullLink = ref('')
 let massige = ref('')
- const questionList = ref(linegameStore.questionList)
+const questionList = ref(linegameStore.questionList)
 
 /** 是否随机打乱答案 */
 const randomizeAnswers = ref(linegameStore.randomizeAnswers)
 
 
-const colors = ref(['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED','#FFC9D4','#FFB05C'])
+const colors = ref(['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED', '#FFC9D4', '#FFB05C'])
 const color = ref(linegameStore.color)
 
 
@@ -139,7 +141,8 @@ function handlePreview() {
   linegameStore.setRandomizeAnswers(randomizeAnswers.value);
   linegameStore.setColor(color.value);
   router.push({
-    name: 'PreviewLineGame'})
+    name: 'PreviewLineGame'
+  })
 }
 
 // 提交按钮
@@ -178,25 +181,28 @@ function handleSubmit() {
 
 const goBack = () => {
   router.go(-1);
-  };
+};
 
-  onMounted(() => {
-    linegameStore.reset();
-  });
+const reset = () => {
+  linegameStore.reset();
+  questionList.value = linegameStore.questionList;
+  randomizeAnswers.value = linegameStore.randomizeAnswers;
+  color.value = linegameStore.color;
+};
 
 </script>
-  
+
 <style scoped>
-  .back-button {
-    left: 3vw;
-    top: 10px;
-    position:absolute;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: black;
-    cursor: pointer;
-  }
+.back-button {
+  left: 3vw;
+  top: 10px;
+  position: absolute;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: black;
+  cursor: pointer;
+}
 
 .middle {
   width: 100%;
@@ -206,8 +212,9 @@ const goBack = () => {
   overflow-y: auto;
   max-height: 80vh;
 }
+
 .middle::-webkit-scrollbar {
-  display: none; 
+  display: none;
 }
 
 /* 外部容器 */
@@ -218,14 +225,15 @@ const goBack = () => {
   position: relative;
 }
 
-.head{
+.head {
   height: 53px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #D8D8D8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #D8D8D8;
 
 }
+
 /* 顶部标题 */
 .editor-title {
   font-family: Source Han Sans;
@@ -296,6 +304,7 @@ const goBack = () => {
   font-size: clamp(10px, 3.4vw, 20px);
   color: #000000;
 }
+
 .qa-input::placeholder {
   font-family: Source Han Sans;
   font-size: clamp(10px, 3.4vw, 20px);
@@ -434,7 +443,7 @@ const goBack = () => {
   color: #3D3D3D;
   box-sizing: border-box;
   word-wrap: break-word;
-  word-break: break-word; 
+  word-break: break-word;
   overflow-wrap: break-word;
 }
 
@@ -453,5 +462,15 @@ const goBack = () => {
   transform: translateX(-50%);
   border: none;
   margin-top: 20px;
+}
+
+.reset-button {
+  position: absolute;
+  right: 3.5vw;
+  border-radius: 8px;
+  color: #000000;
+  font-size: clamp(10px, 3.4vw, 20px);
+  padding: 5px;
+  border: none;
 }
 </style>

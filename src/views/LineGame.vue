@@ -250,7 +250,7 @@ const getOptionStyle = (id: number, side: 'left' | 'right') => {
   const isCorrect = line?.isCorrect ?? false;
 
   return {
-    backgroundColor: line ? (isCorrect ? '#ACE2FF' : 'red') : '#EFEFEF',
+    backgroundColor: line ? (isCorrect ? '#ACE2FF' : '#FFC9D4') : '#EFEFEF',
     boxShadow: isSelected ? '0 0 10px rgba(0, 0, 0, 0.5)' : 'none',
     position: 'relative',
   };
