@@ -52,6 +52,18 @@ export const CreatLineGame = defineStore("LinegameStore", {
       const savedData = JSON.parse(localStorage.getItem("lineGames") || "{}");
       delete savedData[id];
       localStorage.setItem("lineGames", JSON.stringify(savedData));
+    },
+
+    reset() {
+      this.$patch({
+        questionList: [
+      { id: 0, left: "", right: "" },
+      { id: 1, left: "", right: "" },
+    ],
+    randomizeAnswers: false,
+    color: "#ACE2FF",
+    nextId:2,
+      });
     }
 
 

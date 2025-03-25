@@ -69,14 +69,18 @@
   </div>
 
   <div v-if="showComponent" class="tips">
-    <div>{{ massige }}</div>
+    <div style="display: flex; align-content: center; justify-content: center;">{{ massige }}</div>
     <button @click="showComponent = false" class="tips-button">确定</button>
+  </div>
+  <div v-if="showComponent2" class="tips">
+   游戏创建成功！游戏链接：<a :href="fullLink" target="_self">{{ fullLink }}</a>
+    <button @click="showComponent2 = false" class="tips-button">确定</button>
   </div>
 </template>
 
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { CreatDragGame } from '@/stores/CreatDragGame';
 import PickColors from 'vue-pick-colors';
 import { useRouter } from 'vue-router';
@@ -87,7 +91,9 @@ const router = useRouter();
 const colors = ['#ACE2FF', '#8FF286', '#A3A3A3', '#EBBAED', '#FFC9D4', '#FFB05C'];
 
 let showComponent = ref(false)
+let showComponent2 = ref(false)
 let massige = ref('')
+let fullLink = ref('')
 
 const addColumn = () => {
   tableStore.addColumn();
@@ -144,15 +150,21 @@ const handleSubmit = () => {
     // console.log(gameId,'gameId')
 
     // 本地链接
-    // const gameUrl = `${window.location.origin}/#/PlayDragGame/${gameId}`;
+    // const fullLink = `${window.location.origin}/#/PlayDragGame/${gameId}`;
     // console.log(gameUrl,'gameUrl')
     const basePath = '/release/app/engineering/YanSUGame/index.html';
-    const fullLink = `${window.location.origin}${basePath}#/PlayDragGame/${gameId}`;
-    console.log('游戏链接:', fullLink);
+    fullLink = `${window.location.origin}${basePath}#/PlayDragGame/${gameId}`;
+
+    // console.log('游戏链接:', fullLink);
+    showComponent2.value = true;
+    
 
     // router.push(`/PlayDragGame/${gameId}`);
   }
 };
+onMounted(() => {
+  tableStore.reset();
+});
 </script>
 
 <style scoped>
@@ -369,9 +381,10 @@ td input {
 
 .tips {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   padding: 15px 10px 0px 10px;
-  width: 198px;
+  width: 260px;
   min-height: 100px;
   border-radius: 10px;
   background: #FFFFFF;
@@ -384,8 +397,12 @@ td input {
   font-size: 18px;
   font-weight: 500;
   color: #3D3D3D;
-  box-sizing: border-box
+  box-sizing: border-box;
+  word-wrap: break-word;
+  word-break: break-word; 
+  overflow-wrap: break-word;
 }
+
 
 .tips-button {
   width: 100px;
@@ -395,10 +412,11 @@ td input {
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 500;
-  position: absolute;
+  position: relative;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   border: none;
+  margin-top: 20px;
 }
 </style>

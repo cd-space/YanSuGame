@@ -82,5 +82,20 @@ export const CreatDragGame = defineStore("tableStore", {
       delete savedData[id];
       localStorage.setItem('dragGames', JSON.stringify(savedData));
     },
+    
+    reset() {
+      this.$patch({
+        columns: 2,
+        rows: [
+          ['', ''],
+          ['', '']
+        ],
+        headers: [
+          ['', '']
+        ],
+        shuffleAnswers: false,
+        themeColor: '#ACE2FF'
+      });
+    }
   }
 });

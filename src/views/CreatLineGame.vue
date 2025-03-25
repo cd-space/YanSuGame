@@ -73,14 +73,18 @@
     </div>
 
     <div v-if="showComponent" class="tips">
-      <div>{{ massige }}</div>
+      <div style="display: flex; align-content: center; justify-content: center;">{{ massige }}</div>
       <button @click="showComponent = false" class="tips-button">确定</button>
     </div>
+    <div v-if="showComponent2" class="tips">
+   游戏创建成功！游戏链接：<a :href='fullLink' target="_self">{{ fullLink }}</a>
+    <button @click="showComponent2 = false" class="tips-button">确定</button>
+  </div>
 
 </template>
   
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { CreatLineGame } from '@/stores/CreatLineGame';
 import PickColors from 'vue-pick-colors'
@@ -88,6 +92,8 @@ const router = useRouter()
 const linegameStore = CreatLineGame();
 
 let showComponent = ref(false)
+let showComponent2 = ref(false)
+let fullLink = ref('')
 let massige = ref('')
  const questionList = ref(linegameStore.questionList)
 
@@ -161,8 +167,9 @@ function handleSubmit() {
 
   const gameId = linegameStore.saveToLocalStorage();
   const basePath = '/release/app/engineering/YanSUGame/index.html';
-  const fullLink = `${window.location.origin}${basePath}#/PlayDragGame/${gameId}`;
-  console.log('游戏链接:', fullLink);
+  fullLink = `${window.location.origin}${basePath}#/PlayLineGame/${gameId}`;
+  // console.log('游戏链接:', fullLink);
+  showComponent2.value = true;
 
   // router.push(`/PlayLineGame/${gameId}`);
 
@@ -172,6 +179,10 @@ function handleSubmit() {
 const goBack = () => {
   router.go(-1);
   };
+
+  onMounted(() => {
+    linegameStore.reset();
+  });
 
 </script>
   
@@ -405,9 +416,10 @@ const goBack = () => {
 
 .tips {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding:15px 10px 0px 10px ;
-  width: 198px;
+  padding: 15px 10px 0px 10px;
+  width: 260px;
   min-height: 100px;
   border-radius: 10px;
   background: #FFFFFF;
@@ -417,13 +429,17 @@ const goBack = () => {
   transform: translate(-50%, -50%);
   position: fixed;
   font-family: Source Han Sans;
-font-size: 18px;
-font-weight: 500;
-color: #3D3D3D;
-box-sizing: border-box
+  font-size: 18px;
+  font-weight: 500;
+  color: #3D3D3D;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  word-break: break-word; 
+  overflow-wrap: break-word;
 }
 
-.tips-button{
+
+.tips-button {
   width: 100px;
   height: 30px;
   background: #ACE2FF;
@@ -431,10 +447,11 @@ box-sizing: border-box
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 500;
-  position: absolute;
+  position: relative;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   border: none;
+  margin-top: 20px;
 }
 </style>
