@@ -1,6 +1,6 @@
 ## 项目效果图
 
-![img]([src\assets\EffectDrawing\1.png](https://github.com/cd-space/YanSuGame/blob/main/src/assets/EffectDrawing/1.png))
+![img](https://github.com/cd-space/YanSuGame/blob/8c56bbc81be4dcb83fc164017ccf64d9ab445c38/src/assets/EffectDrawing/1.png)
 
 ![2](.\src\assets\EffectDrawing\2.png)
 
