@@ -220,28 +220,34 @@ const handleRightClick = (rightId: number) => {
 };
 
 // 创建连线（先清除旧连线，再创建新连线）
-const createLine = (leftId: number, rightId: number) => {
+const flashingLines = ref<Set<number>>(new Set());
+
+  const createLine = (leftId: number, rightId: number) => {
+  // 清除已存在的旧连线
   lines.value = lines.value.filter(line => line.leftId !== leftId && line.rightId !== rightId);
+
   const isCorrect = leftId === rightId;
   lines.value.push({ leftId, rightId, isCorrect, x1: 0, y1: 0, x2: 0, y2: 0 });
 
   if (audioEnabled.value) {
-    if (isCorrect) {
-      successSound.currentTime = 0;
-      successSound.play();
-    } else {
-      failureSound.currentTime = 0;
-      failureSound.play();
-    }
+    (isCorrect ? successSound : failureSound).play();
   }
 
   nextTick(() => {
     updateLinePositions();
     checkGameEnd(); // 每次连线后检查游戏是否完成
   });
+
+  // 如果错误，0.5 秒后恢复背景色
+  if (!isCorrect) {
+    setTimeout(() => {
+      lines.value = lines.value.filter(line => !(line.leftId === leftId && line.rightId === rightId));
+    }, 800);
+  }
 };
 
 // 计算选项样式
+
 const getOptionStyle = (id: number, side: 'left' | 'right') => {
   const line = lines.value.find(l => l[`${side}Id`] === id);
   const isSelected =
@@ -338,6 +344,12 @@ defineExpose({ shuffleOptions, resetGame, showAnswer, questionList, startColor }
 </script>
 
 <style scoped>
+/* 错误选项和连线闪烁两次 */
+@keyframes flash-error {
+  0% { background-color: #FFC9D4; }
+  50% { background-color: #FFFFFF; }
+  100% { background-color: #FFC9D4; }
+}
 .left {
   display: block;
 }
